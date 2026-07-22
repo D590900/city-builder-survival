@@ -1,0 +1,1141 @@
+/* UI overlay: HUD, build menu and fullscreen screens.
+   Dark post-apocalyptic theme: muted tones, amber/red accents, system fonts.
+   The #ui container has pointer-events: none, so every interactive element
+   re-enables them explicitly with pointer-events: auto. */
+
+.hud,
+.build-menu,
+.screen-overlay {
+  user-select: none;
+}
+
+#ui button {
+  font-family: inherit;
+}
+
+/* ---------------------------------------------------------------------------
+   HUD top bar
+--------------------------------------------------------------------------- */
+
+.hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hud-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 14px;
+  background: linear-gradient(180deg, rgba(10, 12, 16, 0.92), rgba(10, 12, 16, 0.78));
+  border-bottom: 1px solid #2a2f38;
+  color: #cfc9bb;
+  font-size: 14px;
+}
+
+.hud-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.hud-day {
+  font-weight: 600;
+  color: #e8dfc8;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.hud-phase {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.hud-phase-icon {
+  color: #e0a83c;
+}
+
+.hud-phase--night .hud-phase-icon {
+  color: #7d90c0;
+}
+
+.hud-phase-count {
+  color: #8f8a7d;
+  font-variant-numeric: tabular-nums;
+  min-width: 3ch;
+}
+
+.hud-phase-bar {
+  width: 64px;
+  height: 4px;
+  background: #23262e;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.hud-phase-fill {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: #e0a83c;
+  transition: width 0.2s linear;
+}
+
+.hud-phase--night .hud-phase-fill {
+  background: #7d90c0;
+}
+
+.hud-resources {
+  gap: 16px;
+  flex-wrap: wrap;
+  row-gap: 2px;
+}
+
+/* Balance resources re-enable pointer events so the hover breakdown opens. */
+.hud-res {
+  pointer-events: auto;
+}
+
+.hud-net {
+  margin-left: 4px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-net--pos {
+  color: #6f9f4f;
+}
+
+.hud-net--neg {
+  color: #e0745a;
+}
+
+/* Resource breakdown: fixed panel under the top bar, pure readout. */
+.hud-balance {
+  position: absolute;
+  top: 44px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 300px;
+  padding: 10px 12px;
+  background: rgba(12, 14, 19, 0.95);
+  border: 1px solid #3a4150;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #cfc9bb;
+  pointer-events: none;
+  z-index: 8;
+}
+
+.hud-balance.open {
+  display: flex;
+}
+
+.hud-balance-title {
+  font-weight: 600;
+  color: #e8dfc8;
+}
+
+.hud-balance-cols {
+  display: flex;
+  gap: 18px;
+}
+
+.hud-balance-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hud-balance-col-title {
+  color: #9d9685;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hud-balance-empty {
+  color: #5d584d;
+}
+
+.hud-balance-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hud-balance-label {
+  color: #b8b2a3;
+}
+
+.hud-balance-rate {
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-balance-net {
+  border-top: 1px solid #2a2f38;
+  padding-top: 5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Icona + nome del meteo nella sezione sinistra; pointer-events attivi per
+   far funzionare il tooltip (title) con gli effetti. */
+.hud-weather {
+  pointer-events: auto;
+  cursor: default;
+}
+
+.hud-stat {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-speed {
+  gap: 6px;
+}
+
+.hud-btn {
+  pointer-events: auto;
+  background: #171a21;
+  color: #cfc9bb;
+  border: 1px solid #333845;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 14px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.hud-btn:hover {
+  border-color: #e0a83c;
+  color: #f0e6cc;
+}
+
+.hud-btn.active {
+  background: #3a2f14;
+  border-color: #e0a83c;
+  color: #f4c95d;
+}
+
+/* ---------------------------------------------------------------------------
+   Toasts
+--------------------------------------------------------------------------- */
+
+.toast-area {
+  position: absolute;
+  top: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.toast {
+  padding: 6px 14px;
+  border-radius: 4px;
+  background: rgba(16, 18, 24, 0.92);
+  border: 1px solid #333845;
+  border-left: 3px solid #e0a83c;
+  color: #e8dfc8;
+  font-size: 13px;
+  white-space: nowrap;
+  animation: toast-life 4s ease forwards;
+}
+
+.toast--warn {
+  border-left-color: #d97b29;
+}
+
+.toast--error {
+  border-left-color: #c0392b;
+  color: #f0b0a8;
+}
+
+.toast--success {
+  border-left-color: #6f9f4f;
+}
+
+@keyframes toast-life {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  8% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Build menu (bottom bar)
+--------------------------------------------------------------------------- */
+
+.build-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+/* Category tab row above the build list. */
+.build-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(10, 12, 16, 0.88);
+  border: 1px solid #2a2f38;
+  border-radius: 6px;
+}
+
+.build-tab {
+  pointer-events: auto;
+  padding: 4px 10px;
+  background: #171a21;
+  color: #cfc9bb;
+  border: 1px solid #333845;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.build-tab:hover {
+  border-color: #e0a83c;
+  color: #f0e6cc;
+}
+
+.build-tab.active {
+  background: #3a2f14;
+  border-color: #e0a83c;
+  color: #f4c95d;
+}
+
+.build-body {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 12px;
+}
+
+.build-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  max-width: min(1480px, 92vw); /* le voci di una categoria vanno a capo invece di strabordare */
+  padding: 8px;
+  background: rgba(10, 12, 16, 0.88);
+  border: 1px solid #2a2f38;
+  border-radius: 6px;
+}
+
+.build-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+
+.build-btn {
+  position: relative;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 74px;
+  padding: 8px 10px;
+  background: #171a21;
+  border: 1px solid #333845;
+  border-radius: 5px;
+  color: #cfc9bb;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.build-btn:hover {
+  border-color: #e0a83c;
+}
+
+.build-btn.active {
+  background: #3a2f14;
+  border-color: #e0a83c;
+}
+
+.build-btn.disabled {
+  opacity: 0.45;
+  filter: grayscale(0.8);
+  cursor: not-allowed;
+}
+
+.build-btn-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.build-btn-name {
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.build-btn-cost {
+  font-size: 11px;
+  color: #9d9685;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tooltip positioned in JS (fixed coordinates, viewport-clamped, flipped
+   below the button when needed); display/left/top are set inline. */
+.build-tooltip {
+  position: fixed;
+  display: none;
+  flex-direction: column;
+  gap: 3px;
+  width: 200px;
+  padding: 8px 10px;
+  background: rgba(12, 14, 19, 0.97);
+  border: 1px solid #3a4150;
+  border-radius: 5px;
+  font-size: 11px;
+  text-align: left;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.build-tooltip-desc {
+  color: #b8b2a3;
+  margin-bottom: 2px;
+}
+
+.build-tooltip-stat {
+  color: #e0a83c;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------------------
+   Fullscreen screens (title / defeat)
+--------------------------------------------------------------------------- */
+
+.screen-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 6, 10, 0.88);
+  pointer-events: auto;
+  z-index: 30;
+}
+
+.screen-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  max-width: 540px;
+  padding: 40px 48px;
+  background: rgba(13, 15, 20, 0.92);
+  border: 1px solid #333845;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.screen-title {
+  font-size: 40px;
+  letter-spacing: 0.18em;
+  color: #e0a83c;
+  text-shadow: 0 0 24px rgba(224, 168, 60, 0.25);
+}
+
+.screen-title--defeat {
+  color: #c0392b;
+  text-shadow: 0 0 24px rgba(192, 57, 43, 0.3);
+}
+
+.screen-subtitle {
+  color: #9d9685;
+  font-size: 14px;
+}
+
+.screen-instructions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+  font-size: 13px;
+  color: #cfc9bb;
+}
+
+.screen-instruction {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.screen-key {
+  color: #f4c95d;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.screen-goal {
+  color: #e8dfc8;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Best-run line on the title screen (shown only when a record exists). */
+.screen-record {
+  color: #f4c95d;
+  font-size: 13px;
+}
+
+.screen-stats {
+  display: flex;
+  gap: 28px;
+}
+
+.screen-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.screen-stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #9d9685;
+}
+
+.screen-stat-value {
+  font-size: 24px;
+  color: #e8dfc8;
+  font-variant-numeric: tabular-nums;
+}
+
+.screen-btn {
+  pointer-events: auto;
+  padding: 10px 26px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #12100a;
+  background: #e0a83c;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.screen-btn:hover {
+  background: #f4c95d;
+}
+
+/* ---------------------------------------------------------------------------
+   Build menu tech lock
+--------------------------------------------------------------------------- */
+
+.build-btn-lock {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  display: none;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.build-btn.locked .build-btn-lock {
+  display: block;
+}
+
+.build-btn.locked .build-btn-icon {
+  filter: grayscale(1);
+}
+
+.build-tooltip-lock {
+  color: #e0745a;
+}
+
+/* ---------------------------------------------------------------------------
+   Building inspector (right-side panel, above the build menu)
+--------------------------------------------------------------------------- */
+
+.inspector {
+  position: absolute;
+  right: 12px;
+  bottom: 118px;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  width: 260px;
+  padding: 12px;
+  background: rgba(10, 12, 16, 0.92);
+  border: 1px solid #2a2f38;
+  border-radius: 6px;
+  color: #cfc9bb;
+  font-size: 13px;
+  pointer-events: auto;
+  user-select: none;
+  z-index: 10;
+}
+
+.inspector.open {
+  display: flex;
+}
+
+.inspector-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.inspector-title {
+  font-weight: 600;
+  color: #e8dfc8;
+}
+
+.inspector-close {
+  pointer-events: auto;
+  padding: 2px 6px;
+  background: none;
+  border: none;
+  color: #9d9685;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.inspector-close:hover {
+  color: #f0e6cc;
+}
+
+.inspector-desc {
+  color: #b8b2a3;
+  font-size: 12px;
+}
+
+.inspector-hp {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inspector-hp-bar {
+  flex: 1;
+  height: 6px;
+  background: #23262e;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.inspector-hp-fill {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: #6f9f4f;
+  transition: width 0.2s linear;
+}
+
+.inspector-hp-fill--low {
+  background: #d97b29;
+}
+
+.inspector-hp-text {
+  color: #9d9685;
+  font-size: 12px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.inspector-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+}
+
+.inspector-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.inspector-row-label {
+  color: #9d9685;
+}
+
+.inspector-row-value {
+  color: #e0a83c;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.inspector-workers {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inspector-worker-btn {
+  pointer-events: auto;
+  width: 24px;
+  height: 24px;
+  background: #171a21;
+  color: #cfc9bb;
+  border: 1px solid #333845;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.inspector-worker-btn:hover:not(:disabled) {
+  border-color: #e0a83c;
+  color: #f0e6cc;
+}
+
+.inspector-worker-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.inspector-workers-text {
+  font-variant-numeric: tabular-nums;
+}
+
+.inspector-auto {
+  margin-left: auto;
+  padding: 1px 5px;
+  border: 1px solid #7d90c0;
+  border-radius: 3px;
+  color: #7d90c0;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.inspector-repair {
+  pointer-events: auto;
+  padding: 6px 10px;
+  background: #2e2a1a;
+  color: #ecd9a8;
+  border: 1px solid #4d4426;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.inspector-repair:hover:not(:disabled) {
+  background: #3d3722;
+}
+
+.inspector-repair:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.inspector-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.inspector-actions > button {
+  flex: 1;
+  /* la riga azioni è dentro #ui (pointer-events: none): ogni bottone della
+     riga deve poter ricevere i click, senza dipendere dalla propria classe */
+  pointer-events: auto;
+}
+
+.inspector-toggle {
+  pointer-events: auto;
+  padding: 6px 10px;
+  background: #171a21;
+  color: #cfc9bb;
+  border: 1px solid #333845;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.inspector-toggle:hover {
+  border-color: #e0a83c;
+  color: #f0e6cc;
+}
+
+.inspector-toggle--off {
+  border-color: #6b6455;
+  color: #9d9685;
+}
+
+.inspector-upgrade {
+  pointer-events: auto;
+  padding: 6px 10px;
+  background: #171a21;
+  color: #cfc9bb;
+  border: 1px solid #333845;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.inspector-upgrade:hover:not(:disabled) {
+  border-color: #e0a83c;
+  color: #f0e6cc;
+}
+
+.inspector-upgrade:disabled,
+.inspector-upgrade[aria-disabled='true'],
+.inspector-repair[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.inspector-demolish {
+  pointer-events: auto;
+  padding: 6px 10px;
+  background: #3a1d16;
+  color: #f0b0a8;
+  border: 1px solid #c0392b;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.inspector-demolish:hover {
+  background: #4d241a;
+}
+
+/* ---------------------------------------------------------------------------
+   Research panel (centered overlay)
+--------------------------------------------------------------------------- */
+
+.research-panel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: none;
+  flex-direction: column;
+  width: min(480px, calc(100% - 32px));
+  max-height: min(70vh, 560px);
+  padding: 14px;
+  background: rgba(10, 12, 16, 0.95);
+  border: 1px solid #2a2f38;
+  border-radius: 8px;
+  color: #cfc9bb;
+  font-size: 13px;
+  pointer-events: auto;
+  user-select: none;
+  z-index: 20;
+}
+
+.research-panel.open {
+  display: flex;
+}
+
+.research-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.research-title {
+  font-weight: 600;
+  color: #e8dfc8;
+  font-size: 15px;
+}
+
+.research-points {
+  margin-left: auto;
+  color: #7d90c0;
+  font-variant-numeric: tabular-nums;
+}
+
+.research-close {
+  pointer-events: auto;
+  padding: 2px 6px;
+  background: none;
+  border: none;
+  color: #9d9685;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.research-close:hover {
+  color: #f0e6cc;
+}
+
+.research-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+}
+
+.research-tech {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  background: #171a21;
+  border: 1px solid #333845;
+  border-radius: 6px;
+}
+
+.research-tech--available {
+  border-color: #e0a83c;
+  cursor: pointer;
+}
+
+.research-tech--available:hover {
+  background: #1d2029;
+}
+
+.research-tech--done {
+  opacity: 0.75;
+}
+
+.research-tech--locked {
+  opacity: 0.55;
+}
+
+.research-tech-icon {
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.research-tech-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.research-tech-name {
+  font-weight: 600;
+  color: #e8dfc8;
+}
+
+.research-tech-desc {
+  color: #b8b2a3;
+  font-size: 12px;
+}
+
+.research-tech-effect {
+  color: #e0a83c;
+  font-size: 12px;
+}
+
+.research-tech-cost {
+  white-space: nowrap;
+  color: #7d90c0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------------------
+   Labor panel (right-side overlay, above the build menu)
+--------------------------------------------------------------------------- */
+
+.labor-panel {
+  position: absolute;
+  top: 56px;
+  right: 12px;
+  bottom: 140px;
+  display: none;
+  flex-direction: column;
+  width: 300px;
+  padding: 12px;
+  background: rgba(10, 12, 16, 0.92);
+  border: 1px solid #2a2f38;
+  border-radius: 6px;
+  color: #cfc9bb;
+  font-size: 13px;
+  pointer-events: auto;
+  user-select: none;
+  z-index: 10;
+}
+
+.labor-panel.open {
+  display: flex;
+}
+
+.labor-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.labor-title {
+  font-weight: 600;
+  color: #e8dfc8;
+}
+
+.labor-idle {
+  margin-left: auto;
+  color: #9d9685;
+  font-variant-numeric: tabular-nums;
+}
+
+.labor-close {
+  pointer-events: auto;
+  padding: 2px 6px;
+  background: none;
+  border: none;
+  color: #9d9685;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.labor-close:hover {
+  color: #f0e6cc;
+}
+
+.labor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+}
+
+.labor-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  background: #171a21;
+  border: 1px solid #333845;
+  border-radius: 5px;
+}
+
+.labor-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.labor-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.labor-btn {
+  pointer-events: auto;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 4px;
+  background: #171a21;
+  color: #cfc9bb;
+  border: 1px solid #333845;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.labor-btn:hover:not(:disabled) {
+  border-color: #e0a83c;
+  color: #f0e6cc;
+}
+
+.labor-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.labor-workers {
+  min-width: 3ch;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.labor-auto {
+  padding: 1px 5px;
+  border: 1px solid #7d90c0;
+  border-radius: 3px;
+  color: #7d90c0;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.labor-auto-btn {
+  font-size: 11px;
+}
+
+.labor-row--off {
+  opacity: 0.55;
+}
+
+.labor-off {
+  padding: 1px 5px;
+  border: 1px solid #9d9685;
+  border-radius: 3px;
+  color: #9d9685;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.labor-empty {
+  color: #9d9685;
+  font-size: 12px;
+  text-align: center;
+  padding: 12px 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Seed label (bottom right): click copies the shareable map link
+--------------------------------------------------------------------------- */
+
+.seed-label {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  padding: 3px 8px;
+  background: rgba(10, 12, 16, 0.75);
+  border: 1px solid #2a2f38;
+  border-radius: 4px;
+  color: #9d9685;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.seed-label:hover {
+  border-color: #e0a83c;
+  color: #cfc9bb;
+}
