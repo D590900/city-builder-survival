@@ -35,8 +35,8 @@ export function tickSurvivors(state, dt, mods) {
     if (s.hunger >= 100) starved.push(s);
     else if (s.thirst >= 100) dehydrated.push(s);
   }
-  bury(state, starved, (s) => `Il sopravvissuto #${s.id} è morto di fame.`);
-  bury(state, dehydrated, (s) => `Il sopravvissuto #${s.id} è morto di sete.`);
+  bury(state, starved, (s) => `Survivor #${s.id} starved to death.`);
+  bury(state, dehydrated, (s) => `Survivor #${s.id} died of thirst.`);
 }
 
 // Removes dead survivors from the colony and from every job slot,
@@ -219,7 +219,7 @@ export function tryRecruit(state, DEFS, count = 1) {
     if ((state.resources.water ?? 0) <= RECRUIT_MIN_WATER) break;
     if (state.survivors.length >= housingCapacity(state, DEFS)) break;
     const s = addSurvivor(state);
-    pushEvent(state, 'recruit', `Un nuovo sopravvissuto si è unito alla colonia. (#${s.id})`);
+    pushEvent(state, 'recruit', `A new survivor has joined the colony. (#${s.id})`);
     recruited.push(s);
   }
   return recruited;

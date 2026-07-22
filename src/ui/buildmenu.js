@@ -79,12 +79,12 @@ function h(tag, className, text) {
   return node;
 }
 
-// Multi-resource cost line: '🪵20 ⚙️10' (or 'Gratis' when free).
+// Multi-resource cost line: '🪵20 ⚙️10' (or 'Free' when free).
 function formatCost(def) {
   const parts = Object.entries(def.cost ?? {}).map(
     ([resource, amount]) => `${icon(resource)}${amount}`
   );
-  return parts.length > 0 ? parts.join(' ') : 'Gratis';
+  return parts.length > 0 ? parts.join(' ') : 'Free';
 }
 
 // Name of the tech that unlocks the given building id, or null when the
@@ -98,7 +98,7 @@ function techNameFor(defId) {
 }
 
 // capBonus tooltip lines, grouped by bonus amount so a warehouse reads
-// 'Accumulo: +100 🥫🪵⚙️ capacità' instead of three separate lines.
+// 'Storage: +100 🥫🪵⚙️ capacity' instead of three separate lines.
 function capBonusLines(def) {
   const groups = new Map(); // amount -> [resource icons]
   for (const [resource, bonus] of Object.entries(def.capBonus ?? {})) {
@@ -107,7 +107,7 @@ function capBonusLines(def) {
     groups.set(bonus, group);
   }
   return [...groups.entries()].map(
-    ([bonus, icons]) => `Accumulo: +${bonus} ${icons.join('')} capacità`
+    ([bonus, icons]) => `Storage: +${bonus} ${icons.join('')} capacity`
   );
 }
 
@@ -120,22 +120,22 @@ function buildTooltip(def) {
   tip.appendChild(h('span', 'build-tooltip-desc', def.desc));
   const stats = [];
   for (const [resource, amount] of Object.entries(def.produces ?? {})) {
-    const suffix = resource === 'energy' && def.energyDayOnly ? ' (solo di giorno)' : '';
-    stats.push(`Produce: ${icon(resource)} ${amount}/giorno${suffix}`);
+    const suffix = resource === 'energy' && def.energyDayOnly ? ' (day only)' : '';
+    stats.push(`Produces: ${icon(resource)} ${amount}/day${suffix}`);
   }
   for (const [resource, amount] of Object.entries(def.consumes ?? {})) {
-    stats.push(`Consuma: ${icon(resource)} ${amount}/giorno`);
+    stats.push(`Consumes: ${icon(resource)} ${amount}/day`);
   }
   if (def.extracts) {
-    stats.push(`Estrae: ${icon(TILE_YIELDS[def.extracts]?.resource)} ${def.extractRate}/giorno`);
+    stats.push(`Extracts: ${icon(TILE_YIELDS[def.extracts]?.resource)} ${def.extractRate}/day`);
   }
-  if (def.researchRate) stats.push(`Ricerca: 🔬 ${def.researchRate}/giorno`);
+  if (def.researchRate) stats.push(`Research: 🔬 ${def.researchRate}/day`);
   stats.push(...capBonusLines(def));
-  if (def.requiresEnergy) stats.push(`Richiede: ⚡ ${def.requiresEnergy}/giorno`);
-  if (def.jobs) stats.push(`Lavoratori: ${def.jobs}`);
-  if (def.houses) stats.push(`Posti letto: ${def.houses}`);
-  if (def.isTower) stats.push(`Danno: ${def.damage} · Portata: ${def.range}`);
-  if (def.isTrap) stats.push(`Danno trappola: ${def.trapDamage} al passaggio`);
+  if (def.requiresEnergy) stats.push(`Requires: ⚡ ${def.requiresEnergy}/day`);
+  if (def.jobs) stats.push(`Workers: ${def.jobs}`);
+  if (def.houses) stats.push(`Beds: ${def.houses}`);
+  if (def.isTower) stats.push(`Damage: ${def.damage} · Range: ${def.range}`);
+  if (def.isTrap) stats.push(`Trap damage: ${def.trapDamage} per trigger`);
   for (const line of stats) {
     tip.appendChild(h('span', 'build-tooltip-stat', line));
   }
@@ -261,19 +261,19 @@ export function createBuildMenu(root, { onSelect, onDemolish, onCancel } = {}) {
   const side = h('div', 'build-side');
   const demolishBtn = h('button', 'build-btn build-btn--side');
   demolishBtn.type = 'button';
-  demolishBtn.title = 'Demolisci un edificio';
+  demolishBtn.title = 'Demolish a building';
   demolishBtn.append(
     h('span', 'build-btn-icon', '🔨'),
-    h('span', 'build-btn-name', 'Demolisci')
+    h('span', 'build-btn-name', 'Demolish')
   );
   demolishBtn.addEventListener('click', () => onDemolish?.());
 
   const cancelBtn = h('button', 'build-btn build-btn--side');
   cancelBtn.type = 'button';
-  cancelBtn.title = 'Annulla (ESC)';
+  cancelBtn.title = 'Cancel (ESC)';
   cancelBtn.append(
     h('span', 'build-btn-icon', '✖'),
-    h('span', 'build-btn-name', 'Annulla')
+    h('span', 'build-btn-name', 'Cancel')
   );
   cancelBtn.addEventListener('click', () => onCancel?.());
   side.append(demolishBtn, cancelBtn);
@@ -298,7 +298,7 @@ export function createBuildMenu(root, { onSelect, onDemolish, onCancel } = {}) {
       btn.classList.toggle('active', mode === 'build' && defId === activeDefId);
       lockTip.style.display = locked ? '' : 'none';
       if (locked) {
-        lockTip.textContent = `🔒 Richiede ricerca: ${techNameFor(defId) ?? 'sconosciuta'}`;
+        lockTip.textContent = `🔒 Requires research: ${techNameFor(defId) ?? 'unknown'}`;
       }
     }
     demolishBtn.classList.toggle('active', mode === 'demolish');

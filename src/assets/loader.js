@@ -15,7 +15,7 @@ const MANIFEST_URL = 'assets/manifest.json';
 export async function loadAll(onProgress) {
   const response = await fetch(MANIFEST_URL);
   if (!response.ok) {
-    throw new Error(`Impossibile caricare il manifest degli asset: ${response.status}`);
+    throw new Error(`Failed to load the asset manifest: ${response.status}`);
   }
   const manifest = await response.json();
 

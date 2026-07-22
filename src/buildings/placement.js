@@ -277,7 +277,7 @@ export function createPlacement({ scene, grid, state, input, visuals, assets, ov
     if (!d) return;
     if (!isUnlocked(state, d)) {
       const techName = TECHS[d.requiresTech]?.name ?? d.requiresTech;
-      pushEvent(state, 'error', `Richiede ricerca: ${techName}.`);
+      pushEvent(state, 'error', `Requires research: ${techName}.`);
       return;
     }
     cancel();
@@ -474,7 +474,7 @@ export function createPlacement({ scene, grid, state, input, visuals, assets, ov
     if (!cursorTile || !valid) return;
     const { w, h } = effSize();
     if (!buildAt(cursorTile, w, h)) return;
-    pushEvent(state, 'build', `${def.name} costruito.`);
+    pushEvent(state, 'build', `${def.name} built.`);
     // Stay in placing mode for consecutive placements.
   }
 
@@ -491,7 +491,7 @@ export function createPlacement({ scene, grid, state, input, visuals, assets, ov
       pushEvent(
         state,
         'build',
-        placed === 1 ? `${def.name} costruito.` : `${def.name} ×${placed} costruiti.`
+        placed === 1 ? `${def.name} built.` : `${def.name} ×${placed} built.`
       );
     }
     // Stay in placing mode, like single-click placement.
@@ -515,7 +515,7 @@ export function createPlacement({ scene, grid, state, input, visuals, assets, ov
     release(grid, building.id);
     removeBuilding(state, building.id);
     visuals.remove(building.id);
-    pushEvent(state, 'demolish', `${d?.name ?? 'Edificio'} demolito.`);
+    pushEvent(state, 'demolish', `${d?.name ?? 'Building'} demolished.`);
   }
 
   function demolishAt(payload) {

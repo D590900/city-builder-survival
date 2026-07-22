@@ -11,12 +11,12 @@ import { BUILDING_DEFS } from '../buildings/definitions.js';
 import { assignWorker, unassignWorker, idleCount } from '../sim/survivors.js';
 import { ICONS } from './buildmenu.js';
 
-// Priorità lavoratori per edificio (b.priority): il bottone di riga cicla
-// normale → alta → bassa. Indicizzato sul valore 0/1/2.
+// Per-building worker priority (b.priority): the row button cycles
+// normal → high → low. Indexed on the 0/1/2 value.
 const PRIORITIES = [
-  { icon: '▼', label: 'bassa' },
-  { icon: '●', label: 'normale' },
-  { icon: '▲', label: 'alta' },
+  { icon: '▼', label: 'low' },
+  { icon: '●', label: 'normal' },
+  { icon: '▲', label: 'high' },
 ];
 
 function h(tag, className, text) {
@@ -51,12 +51,12 @@ export function createLaborPanel(root) {
   const rootEl = h('div', 'labor-panel');
 
   const head = h('div', 'labor-head');
-  head.appendChild(h('span', 'labor-title', '👷 Lavoratori'));
+  head.appendChild(h('span', 'labor-title', '👷 Workers'));
   const idleEl = h('span', 'labor-idle');
   head.appendChild(idleEl);
   const closeBtn = h('button', 'labor-close', '✖');
   closeBtn.type = 'button';
-  closeBtn.title = 'Chiudi';
+  closeBtn.title = 'Close';
   closeBtn.addEventListener('click', close);
   head.appendChild(closeBtn);
 
@@ -79,29 +79,29 @@ export function createLaborPanel(root) {
       const controls = h('div', 'labor-controls');
       const minusBtn = h('button', 'labor-btn', '−');
       minusBtn.type = 'button';
-      minusBtn.title = 'Rimuovi un lavoratore';
+      minusBtn.title = 'Remove a worker';
       minusBtn.addEventListener('click', () => {
         if (unassignWorker(state, b.id)) update(state);
       });
       const workersEl = h('span', 'labor-workers');
       const plusBtn = h('button', 'labor-btn', '+');
       plusBtn.type = 'button';
-      plusBtn.title = 'Assegna un lavoratore';
+      plusBtn.title = 'Assign a worker';
       plusBtn.addEventListener('click', () => {
         if (assignWorker(state, b.id, BUILDING_DEFS)) update(state);
       });
       const autoBadge = h('span', 'labor-auto', 'auto');
-      autoBadge.title = 'Assegnazione automatica dei lavoratori attiva';
+      autoBadge.title = 'Automatic worker assignment active';
       const autoBtn = h('button', 'labor-btn labor-auto-btn', 'Auto');
       autoBtn.type = 'button';
-      autoBtn.title = 'Torna alla assegnazione automatica';
+      autoBtn.title = 'Return to automatic assignment';
       autoBtn.addEventListener('click', () => {
         b.autoAssign = true;
         update(state);
       });
-      const offBadge = h('span', 'labor-off', 'spento');
-      offBadge.title = 'Edificio spento: inerte, senza lavoratori';
-      // Ciclo di priorità: funziona anche da spento (vale alla riattivazione).
+      const offBadge = h('span', 'labor-off', 'off');
+      offBadge.title = 'Building switched off: inert, no workers';
+      // Priority cycle: also works while switched off (applies on reactivation).
       const priorityBtn = h('button', 'labor-btn labor-priority');
       priorityBtn.type = 'button';
       priorityBtn.addEventListener('click', () => {
@@ -114,7 +114,7 @@ export function createLaborPanel(root) {
       list.appendChild(row);
     }
     if (jobBuildings.length === 0) {
-      list.appendChild(h('div', 'labor-empty', 'Nessun edificio con posti di lavoro.'));
+      list.appendChild(h('div', 'labor-empty', 'No buildings with job slots.'));
     }
   }
 
@@ -123,7 +123,7 @@ export function createLaborPanel(root) {
     lastState = state;
     if (!visible) return;
     const idle = idleCount(state);
-    idleEl.textContent = `— ${idle} ${idle === 1 ? 'libero' : 'liberi'}`;
+    idleEl.textContent = `— ${idle} free`;
 
     const jobBuildings = state.buildings.filter(
       (b) => (BUILDING_DEFS[b.defId]?.jobs ?? 0) > 0
@@ -148,7 +148,7 @@ export function createLaborPanel(root) {
       row.autoBtn.style.display = !off && !isAuto ? '' : 'none';
       const pri = PRIORITIES[b.priority ?? 1] ?? PRIORITIES[1];
       row.priorityBtn.textContent = pri.icon;
-      row.priorityBtn.title = `Priorità lavoratori: ${pri.label} (click per cambiare)`;
+      row.priorityBtn.title = `Worker priority: ${pri.label} (click to change)`;
     }
   }
 

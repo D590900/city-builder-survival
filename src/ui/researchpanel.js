@@ -1,6 +1,6 @@
 // Research panel: overlay listing the full tech tree. Each card shows the
 // tech state (✓ researched / 🔬 available / 🔒 unaffordable), its cost and
-// its unlocks/bonuses in Italian; clicking an available tech fires
+// its unlocks/bonuses; clicking an available tech fires
 // onResearch(id). No DOM access at import time: every element is built
 // inside createResearchPanel().
 
@@ -22,18 +22,18 @@ function pct(value) {
 }
 
 const EFFECT_LABELS = {
-  extractProd: (v) => `Produzione estrattori ${pct(v)}`,
-  hungerRate: (v) => `Fame ${pct(v)}`,
-  thirstRate: (v) => `Sete ${pct(v)}`,
-  towerDamage: (v) => `Danno delle torri ${pct(v)}`,
-  towerRangeMul: (v) => `Portata delle torri ${pct(v)}`,
+  extractProd: (v) => `Extractor production ${pct(v)}`,
+  hungerRate: (v) => `Hunger ${pct(v)}`,
+  thirstRate: (v) => `Thirst ${pct(v)}`,
+  towerDamage: (v) => `Tower damage ${pct(v)}`,
+  towerRangeMul: (v) => `Tower range ${pct(v)}`,
 };
 
-// Italian effect lines for a tech: unlocked building names plus bonus list.
+// Effect lines for a tech: unlocked building names plus bonus list.
 function effectLines(tech) {
   const lines = [];
   for (const buildingId of tech.unlocks ?? []) {
-    lines.push(`Sblocca: ${BUILDING_DEFS[buildingId]?.name ?? buildingId}`);
+    lines.push(`Unlocks: ${BUILDING_DEFS[buildingId]?.name ?? buildingId}`);
   }
   for (const [key, value] of Object.entries(tech.effects ?? {})) {
     lines.push(EFFECT_LABELS[key] ? EFFECT_LABELS[key](value) : `${key} ${pct(value)}`);
@@ -65,12 +65,12 @@ export function createResearchPanel(root, { onResearch } = {}) {
   const rootEl = h('div', 'research-panel');
 
   const head = h('div', 'research-head');
-  head.appendChild(h('span', 'research-title', '🔬 Ricerca'));
+  head.appendChild(h('span', 'research-title', '🔬 Research'));
   const pointsEl = h('span', 'research-points');
   head.appendChild(pointsEl);
   const closeBtn = h('button', 'research-close', '✖');
   closeBtn.type = 'button';
-  closeBtn.title = 'Chiudi';
+  closeBtn.title = 'Close';
   closeBtn.addEventListener('click', close);
   head.appendChild(closeBtn);
 
@@ -110,7 +110,7 @@ export function createResearchPanel(root, { onResearch } = {}) {
       card.classList.toggle('research-tech--available', !done && available);
       card.classList.toggle('research-tech--locked', !done && !available);
       iconEl.textContent = done ? '✓' : available ? '🔬' : '🔒';
-      costEl.textContent = done ? 'Completata' : `🔬 ${tech.cost}`;
+      costEl.textContent = done ? 'Completed' : `🔬 ${tech.cost}`;
     }
   }
 

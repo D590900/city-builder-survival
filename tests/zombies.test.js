@@ -569,7 +569,7 @@ describe('combat destruction', () => {
     expect(state.buildings.length).toBe(0);
     expect(state.survivors.length).toBe(0); // morti con la fattoria
     const destroyed = state.events.find((e) => e.type === 'destroyed');
-    expect(destroyed.msg).toBe('Distruzione: Fattoria! 2 lavoratori sono morti.');
+    expect(destroyed.msg).toBe('Destroyed: Farm! 2 workers died.');
   });
 
   it('kills nobody when the destroyed building had no workers', () => {
@@ -582,7 +582,7 @@ describe('combat destruction', () => {
     combat.update(0.016, zm);
     expect(state.survivors.length).toBe(1);
     const destroyed = state.events.find((e) => e.type === 'destroyed');
-    expect(destroyed.msg).toBe('Distruzione: Fattoria!');
+    expect(destroyed.msg).toBe('Destroyed: Farm!');
   });
 
   it('warns once per rate-limit when a staffed building loses hp at night', () => {
@@ -592,12 +592,12 @@ describe('combat destruction', () => {
     const s = addSurvivor(state);
     s.buildingId = farm.id;
     farm.workers.push(s.id);
-    const warns = () => state.events.filter((e) => e.msg.includes('sotto attacco'));
+    const warns = () => state.events.filter((e) => e.msg.includes('under attack'));
 
     farm.hp -= 10;
     combat.update(0.016, zm);
     expect(warns()).toHaveLength(1);
-    expect(warns()[0].msg).toContain('⚠ Fattoria sotto attacco — 1 lavoratore in pericolo!');
+    expect(warns()[0].msg).toContain('⚠ Farm under attack — 1 worker in danger!');
 
     farm.hp -= 10; // altri danni dentro il cooldown: niente secondo avviso
     combat.update(1, zm);
@@ -614,7 +614,7 @@ describe('combat destruction', () => {
     const s = addSurvivor(state);
     s.buildingId = farm.id;
     farm.workers.push(s.id);
-    const warns = () => state.events.filter((e) => e.msg.includes('sotto attacco'));
+    const warns = () => state.events.filter((e) => e.msg.includes('under attack'));
 
     farm.hp -= 10; // di giorno (fase di default): niente avvisi
     combat.update(0.016, zm);

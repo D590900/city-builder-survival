@@ -571,9 +571,9 @@ describe('computeResourceBalance', () => {
     addSurvivor(state);
     const balance = computeResourceBalance(state, DEFS);
     expect(balance.food.consumed).toEqual([
-      { label: 'Sopravvissuti ×2', rate: (100 / (1.5 * 40)) * 2 },
+      { label: 'Survivors ×2', rate: (100 / (1.5 * 40)) * 2 },
     ]);
-    expect(balance.water.consumed).toEqual([{ label: 'Sopravvissuti ×2', rate: 5 }]);
+    expect(balance.water.consumed).toEqual([{ label: 'Survivors ×2', rate: 5 }]);
     expect(balance.food.net).toBeCloseTo(-3.333, 2);
     expect(balance.water.net).toBeCloseTo(-5);
   });

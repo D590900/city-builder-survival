@@ -7,9 +7,11 @@ victory — survive as long as you can.
 Built with [Vite](https://vite.dev) + [Three.js](https://threejs.org), with no
 UI framework: a full-screen WebGL canvas and a minimal DOM overlay.
 
+**▶ Play online: https://d590900.github.io/city-builder-survival/**
+
 ![screenshot](docs/screenshot.png)
 
-## Getting started
+## Local development
 
 ```bash
 npm install

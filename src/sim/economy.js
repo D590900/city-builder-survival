@@ -66,7 +66,7 @@ function warnNoFuel(state, building, def) {
     return;
   }
   building.warnedAt = now;
-  pushEvent(state, 'fuel', `${def.name} è fermo: manca carburante.`);
+  pushEvent(state, 'fuel', `${def.name} is stalled: out of fuel.`);
 }
 
 // Per-day energy output of a single building. Solar (energyDayOnly) only
@@ -273,7 +273,7 @@ export function computeResourceBalance(state, DEFS, mods, grid) {
 
   const survivors = state.survivors?.length ?? 0;
   if (survivors > 0) {
-    const label = `Sopravvissuti ×${survivors}`;
+    const label = `Survivors ×${survivors}`;
     add('food', 'consumed', '__survivors', label, SURVIVOR_FOOD_PER_DAY * survivors);
     add('water', 'consumed', '__survivors', label, SURVIVOR_WATER_PER_DAY * survivors);
   }

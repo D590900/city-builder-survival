@@ -4,7 +4,7 @@ import { WEATHERS, rollWeatherForDay, advanceWeather } from '../src/sim/weather.
 describe('WEATHERS table', () => {
   it('matches the v3 contract', () => {
     expect(Object.keys(WEATHERS).sort()).toEqual(['clear', 'fog', 'heat', 'rain', 'storm']);
-    expect(WEATHERS.clear).toMatchObject({ name: 'Sereno', icon: '☀️', weight: 40, mods: {} });
+    expect(WEATHERS.clear).toMatchObject({ name: 'Clear', icon: '☀️', weight: 40, mods: {} });
     expect(WEATHERS.rain.mods).toEqual({
       rainProd: 2,
       farmProd: 1.25,
@@ -30,7 +30,7 @@ describe('WEATHERS table', () => {
     });
   });
 
-  it('has weights summing to 100 and an Italian name/icon for each weather', () => {
+  it('has weights summing to 100 and a name/icon for each weather', () => {
     const total = Object.values(WEATHERS).reduce((sum, w) => sum + w.weight, 0);
     expect(total).toBe(100);
     for (const w of Object.values(WEATHERS)) {

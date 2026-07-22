@@ -1139,3 +1139,61 @@
   border-color: #e0a83c;
   color: #cfc9bb;
 }
+
+/* ---------------------------------------------------------------------------
+   Tutorial hint card (first run, above the build menu)
+--------------------------------------------------------------------------- */
+
+.tutorial {
+  position: absolute;
+  left: 50%;
+  bottom: 150px; /* clears the build menu (tabs + buttons) */
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 9; /* below the side panels (10) */
+}
+
+.tutorial-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(360px, calc(100vw - 32px));
+  padding: 12px 14px;
+  background: rgba(10, 12, 16, 0.92);
+  border: 1px solid #2a2f38;
+  border-left: 3px solid #e0a83c;
+  border-radius: 6px;
+  color: #cfc9bb;
+  font-size: 13px;
+  pointer-events: auto; /* the card is the only interactive part */
+  user-select: none;
+}
+
+.tutorial-step {
+  color: #e0a83c;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tutorial-text {
+  line-height: 1.45;
+}
+
+.tutorial-skip {
+  align-self: flex-end;
+  pointer-events: auto;
+  padding: 4px 10px;
+  background: #171a21;
+  color: #9d9685;
+  border: 1px solid #333845;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.tutorial-skip:hover {
+  border-color: #e0a83c;
+  color: #f0e6cc;
+}

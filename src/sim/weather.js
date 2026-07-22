@@ -2,27 +2,27 @@
 // table consumed by getModifiers(). Pure logic, no I/O.
 
 export const WEATHERS = {
-  clear: { name: 'Sereno', icon: '☀️', weight: 40, mods: {} },
+  clear: { name: 'Clear', icon: '☀️', weight: 40, mods: {} },
   rain: {
-    name: 'Pioggia',
+    name: 'Rain',
     icon: '🌧️',
     weight: 25,
     mods: { rainProd: 2, farmProd: 1.25, windProd: 1.25, fogMul: 1.5, zombieSpeed: 0.95 },
   },
   storm: {
-    name: 'Tempesta',
+    name: 'Storm',
     icon: '⛈️',
     weight: 10,
     mods: { rainProd: 3, solarProd: 0.5, windProd: 2, towerRangeMul: 0.75, zombieSpeed: 0.85, fogMul: 2 },
   },
   fog: {
-    name: 'Nebbia',
+    name: 'Fog',
     icon: '🌫️',
     weight: 15,
     mods: { fogMul: 3.5, towerRangeMul: 0.7 },
   },
   heat: {
-    name: 'Ondata di calore',
+    name: 'Heat Wave',
     icon: '🔥',
     weight: 10,
     mods: { thirstRate: 1.5, rainProd: 0.25, farmProd: 0.75, solarProd: 1.25, windProd: 0.75 },

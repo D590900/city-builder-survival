@@ -18,29 +18,29 @@ const TOAST_TTL_MS = 4000;
 const BALANCE_CACHE_MS = 500;
 
 const SPEEDS = [
-  { speed: 1, icon: '▶', label: 'Velocità 1x' },
-  { speed: 2, icon: '⏩', label: 'Velocità 2x' },
-  { speed: 3, icon: '⏭', label: 'Velocità 3x' },
+  { speed: 1, icon: '▶', label: 'Speed 1x' },
+  { speed: 2, icon: '⏩', label: 'Speed 2x' },
+  { speed: 3, icon: '⏭', label: 'Speed 3x' },
 ];
 
 // Resources with a daily balance readout, in display order.
 const BALANCE_RESOURCES = [
-  { key: 'food', icon: '🥫', label: 'Cibo' },
-  { key: 'water', icon: '💧', label: 'Acqua' },
-  { key: 'wood', icon: '🪵', label: 'Legno' },
-  { key: 'metal', icon: '⚙️', label: 'Metallo' },
-  { key: 'energy', icon: '⚡', label: 'Energia' },
-  { key: 'fuel', icon: '⛽', label: 'Carburante' },
+  { key: 'food', icon: '🥫', label: 'Food' },
+  { key: 'water', icon: '💧', label: 'Water' },
+  { key: 'wood', icon: '🪵', label: 'Wood' },
+  { key: 'metal', icon: '⚙️', label: 'Metal' },
+  { key: 'energy', icon: '⚡', label: 'Energy' },
+  { key: 'fuel', icon: '⛽', label: 'Fuel' },
 ];
 
 // One-line effect summary per weather type, shown in the HUD weather
 // tooltip (mirrors the mods table in sim/weather.js).
 const WEATHER_EFFECTS = {
-  clear: 'nessun effetto',
-  rain: 'raccoglitori ×2, fattorie e turbine ×1.25, zombie rallentati',
-  storm: 'raccoglitori ×3, turbine ×2, solare ×0.5, torri −25% raggio',
-  fog: 'torri −30% raggio',
-  heat: 'sete ×1.5, raccoglitori ×0.25, fattorie ×0.75, solare ×1.25',
+  clear: 'no effect',
+  rain: 'rain collectors ×2, farms and turbines ×1.25, zombies slowed',
+  storm: 'rain collectors ×3, turbines ×2, solar ×0.5, towers −25% range',
+  fog: 'towers −30% range',
+  heat: 'thirst ×1.5, rain collectors ×0.25, farms ×0.75, solar ×1.25',
 };
 
 function h(tag, className, text) {
@@ -59,9 +59,9 @@ const fmtRate = (rate) => {
   return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
 };
 
-// Signed per-day string: '+4/g' / '−2/g'.
+// Signed per-day string: '+4/d' / '−2/d'.
 const fmtNet = (net) =>
-  net >= 0 ? `+${fmtRate(net)}/g` : `−${fmtRate(Math.abs(net))}/g`;
+  net >= 0 ? `+${fmtRate(net)}/d` : `−${fmtRate(Math.abs(net))}/d`;
 
 /**
  * Creates the HUD inside `root` (the #ui overlay div).
@@ -140,11 +140,11 @@ export function createHud(root) {
   }
 
   const researchEl = h('span', 'hud-stat');
-  researchEl.title = 'Punti ricerca';
+  researchEl.title = 'Research points';
   const survivorsEl = h('span', 'hud-stat');
-  survivorsEl.title = 'Sopravvissuti (liberi) / posti letto';
+  survivorsEl.title = 'Survivors (idle) / beds';
   const killsEl = h('span', 'hud-stat');
-  killsEl.title = 'Zombie eliminati';
+  killsEl.title = 'Zombies killed';
   const reputationEl = h('span', 'hud-stat');
   center.append(researchEl, survivorsEl, killsEl, reputationEl);
 
@@ -161,7 +161,7 @@ export function createHud(root) {
   }
   let lastGrid = null; // grid from update()'s extra: feeds the trail bonus
 
-  // One breakdown column ('Produce' / 'Consuma') with signed rate rows.
+  // One breakdown column ('Produces' / 'Consumes') with signed rate rows.
   function balanceColumn(title, entries, sign) {
     const col = h('div', 'hud-balance-col');
     col.appendChild(h('span', 'hud-balance-col-title', title));
@@ -172,7 +172,7 @@ export function createHud(root) {
       const row = h('span', 'hud-balance-row');
       row.append(
         h('span', 'hud-balance-label', label),
-        h('span', `hud-balance-rate ${sign === '+' ? 'hud-net--pos' : 'hud-net--neg'}`, `${sign}${fmtRate(rate)}/g`)
+        h('span', `hud-balance-rate ${sign === '+' ? 'hud-net--pos' : 'hud-net--neg'}`, `${sign}${fmtRate(rate)}/d`)
       );
       col.appendChild(row);
     }
@@ -186,16 +186,16 @@ export function createHud(root) {
     const data = balanceCache[hoveredResource];
     if (!meta || !data) return;
     balancePanel.appendChild(
-      h('span', 'hud-balance-title', `${meta.icon} ${meta.label} — bilancio al giorno`)
+      h('span', 'hud-balance-title', `${meta.icon} ${meta.label} — daily balance`)
     );
     const cols = h('div', 'hud-balance-cols');
     cols.append(
-      balanceColumn('Produce', data.produced, '+'),
-      balanceColumn('Consuma', data.consumed, '−')
+      balanceColumn('Produces', data.produced, '+'),
+      balanceColumn('Consumes', data.consumed, '−')
     );
     balancePanel.appendChild(cols);
     const net = Math.round(data.net * 10) / 10;
-    const netEl = h('span', `hud-balance-net ${net >= 0 ? 'hud-net--pos' : 'hud-net--neg'}`, `Netto: ${fmtNet(net)}`);
+    const netEl = h('span', `hud-balance-net ${net >= 0 ? 'hud-net--pos' : 'hud-net--neg'}`, `Net: ${fmtNet(net)}`);
     balancePanel.appendChild(netEl);
   }
 
@@ -203,7 +203,7 @@ export function createHud(root) {
   const right = h('div', 'hud-section hud-speed');
   const laborBtn = h('button', 'hud-btn', '👷');
   laborBtn.type = 'button';
-  laborBtn.title = 'Pannello lavoratori';
+  laborBtn.title = 'Workers panel';
   laborBtn.addEventListener('click', () => {
     for (const cb of laborCbs) cb();
   });
@@ -211,7 +211,7 @@ export function createHud(root) {
 
   const researchBtn = h('button', 'hud-btn', '🔬');
   researchBtn.type = 'button';
-  researchBtn.title = 'Pannello ricerca';
+  researchBtn.title = 'Research panel';
   researchBtn.addEventListener('click', () => {
     for (const cb of researchCbs) cb();
   });
@@ -219,7 +219,7 @@ export function createHud(root) {
 
   const overlayBtn = h('button', 'hud-btn', '🔍');
   overlayBtn.type = 'button';
-  overlayBtn.title = 'Resa del sito (pozzi, caccia, pesca, allevamenti)';
+  overlayBtn.title = 'Site yield (wells, hunting, fishing, ranches)';
   overlayBtn.addEventListener('click', () => {
     overlayOn = !overlayOn;
     overlayBtn.classList.toggle('active', overlayOn);
@@ -229,7 +229,7 @@ export function createHud(root) {
 
   const pauseBtn = h('button', 'hud-btn', '⏸');
   pauseBtn.type = 'button';
-  pauseBtn.title = 'Pausa';
+  pauseBtn.title = 'Pause';
   pauseBtn.addEventListener('click', () => {
     isPaused = !isPaused;
     refreshSpeedButtons();
@@ -239,7 +239,7 @@ export function createHud(root) {
 
   const restartBtn = h('button', 'hud-btn', '🔄');
   restartBtn.type = 'button';
-  restartBtn.title = 'Riavvia partita';
+  restartBtn.title = 'Restart game';
   restartBtn.addEventListener('click', () => {
     for (const cb of restartCbs) cb();
   });
@@ -285,11 +285,11 @@ export function createHud(root) {
    */
   function update(state, defs, extra = {}) {
     if (extra.grid) lastGrid = extra.grid;
-    dayEl.textContent = `Giorno ${state.day}`;
+    dayEl.textContent = `Day ${state.day}`;
 
     const night = state.phase === 'night';
     phaseIcon.textContent = night ? '☾' : '☀';
-    phaseLabel.textContent = night ? 'Notte' : 'Giorno';
+    phaseLabel.textContent = night ? 'Night' : 'Day';
     phaseWrap.classList.toggle('hud-phase--night', night);
 
     if (typeof extra.phaseTimeLeft === 'number') {
@@ -321,18 +321,18 @@ export function createHud(root) {
     const survivorCount = state.survivors?.length ?? 0;
     survivorsEl.textContent =
       typeof extra.idle === 'number'
-        ? `👥 ${survivorCount} (${extra.idle} liberi)/${extra.housing ?? 0}`
+        ? `👥 ${survivorCount} (${extra.idle} idle)/${extra.housing ?? 0}`
         : `👥 ${survivorCount}/${extra.housing ?? 0}`;
     killsEl.textContent = `💀 ${state.kills ?? 0}`;
 
     const reputation = Math.floor(state.reputation ?? 0);
     reputationEl.textContent = `⭐ ${reputation}`;
-    reputationEl.title = `Reputazione: attira sopravvissuti (+${Math.floor(reputation / 25)} reclute a ogni alba), cresce sopravvivendo e con le Radio, cala con le morti`;
+    reputationEl.title = `Reputation: attracts survivors (+${Math.floor(reputation / 25)} recruits each dawn), grows by surviving and with Radios, drops with deaths`;
 
     const weatherId = state.weather?.current ?? 'clear';
     const weather = WEATHERS[weatherId] ?? WEATHERS.clear;
     weatherEl.textContent = `${weather.icon} ${weather.name}`;
-    weatherEl.title = `Meteo: ${weather.name} — ${WEATHER_EFFECTS[weatherId] ?? WEATHER_EFFECTS.clear}`;
+    weatherEl.title = `Weather: ${weather.name} — ${WEATHER_EFFECTS[weatherId] ?? WEATHER_EFFECTS.clear}`;
 
     if (typeof extra.speed === 'number') currentSpeed = extra.speed;
     if (typeof extra.paused === 'boolean') isPaused = extra.paused;

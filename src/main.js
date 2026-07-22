@@ -58,6 +58,7 @@ import { createInspector } from './ui/inspector.js';
 import { createResearchPanel } from './ui/researchpanel.js';
 import { createLaborPanel } from './ui/laborpanel.js';
 import { createScreens } from './ui/screens.js';
+import { createTutorial, tutorialSeen } from './ui/tutorial.js';
 
 const SAVE_KEY = 'cbs-save';
 const SAVE_VERSION = 4;
@@ -70,6 +71,12 @@ const SMOKE_INTERVAL = 3.5; // seconds between smoke puffs on a damaged building
 const DAMAGE_SMOKE_RATIO = 0.5; // buildings below this hp ratio smoke
 const GEN_SMOKE_INTERVAL = 2.5; // seconds between smoke puffs on a running generator
 const RESOURCE_KEYS = ['food', 'water', 'wood', 'metal', 'energy', 'fuel'];
+// Keys that drive the camera (WASD/arrows pan, Q/E rotate): the tutorial's
+// first step closes on the first camera input, wheel zoom included.
+const CAMERA_KEYS = new Set([
+  'w', 'a', 's', 'd', 'q', 'e',
+  'arrowup', 'arrowdown', 'arrowleft', 'arrowright',
+]);
 
 const params = new URLSearchParams(window.location.search);
 
@@ -222,7 +229,7 @@ function restoreSave(data) {
   }
   state.nextBuildingId = Math.max(state.nextBuildingId, maxBuildingId + 1);
   if (!state.buildings.some((b) => b.defId === 'hq')) {
-    throw new Error('Salvataggio senza Rifugio');
+    throw new Error('Save without a Refuge');
   }
 
   // Survivors keep their saved ids and reconnect to their workplace via
@@ -272,12 +279,14 @@ function startGame({ engine, screens, assets }) {
   let grid = null;
   let state = null;
   let changedTiles = []; // [{ x, z, toType }] — extraction/planting since mapgen
+  let loadedSave = false; // true when state comes from a v4 save
 
   if (!forceNew) {
     const data = readSave();
     if (data) {
       try {
         ({ grid, state, seed, changedTiles } = restoreSave(data));
+        loadedSave = true;
       } catch {
         grid = null;
         state = null;
@@ -350,9 +359,11 @@ function startGame({ engine, screens, assets }) {
   const iso = createIsoCamera(window.innerWidth / window.innerHeight);
   engine.setCamera(iso.camera);
   const input = createInput(engine.renderer.domElement, iso);
+  let cameraTouched = false; // first camera input closes the tutorial's step 1
   // Wheel zoom: iso.zoom() expects a scaled delta (see core/camera.js).
   engine.renderer.domElement.addEventListener('wheel', (e) => {
     e.preventDefault();
+    cameraTouched = true;
     iso.zoom(e.deltaY * 0.02);
   }, { passive: false });
   const daynight = createDayNight(engine.scene);
@@ -452,12 +463,12 @@ function startGame({ engine, screens, assets }) {
   seedEl.type = 'button';
   seedEl.className = 'seed-label';
   seedEl.textContent = `seed #${seed}`;
-  seedEl.title = 'Copia il link a questa mappa';
+  seedEl.title = 'Copy the link to this map';
   seedEl.addEventListener('click', () => {
     const url = `${location.origin}${location.pathname}?seed=${seed}`;
     navigator.clipboard?.writeText(url).then(
-      () => hud.toast('Link copiato negli appunti', 'success'),
-      () => hud.toast('Impossibile copiare il link', 'error')
+      () => hud.toast('Link copied to the clipboard', 'success'),
+      () => hud.toast('Could not copy the link', 'error')
     );
   });
   uiRoot.appendChild(seedEl);
@@ -469,6 +480,11 @@ function startGame({ engine, screens, assets }) {
     visuals,
     defs: BUILDING_DEFS,
   });
+
+  // First-run tutorial (non-blocking hint card above the build menu): only
+  // on the very first fresh game — never on a loaded save, and never again
+  // once completed or skipped, so a ?new=1 restart does not bring it back.
+  const tutorial = !loadedSave && !tutorialSeen() ? createTutorial(uiRoot) : null;
 
   // v3 handles on the debug object (used by the headless smoke tests).
   window.__game.workers = workers;
@@ -562,10 +578,10 @@ function startGame({ engine, screens, assets }) {
     paused = true;
     screens.showConfirm(
       {
-        title: 'Riavviare la partita?',
-        message: 'Il progresso attuale andrà perso e la colonia ripartirà da zero.',
-        confirmLabel: 'Riavvia',
-        cancelLabel: 'Annulla',
+        title: 'Restart the game?',
+        message: 'Current progress will be lost and the colony will start over from scratch.',
+        confirmLabel: 'Restart',
+        cancelLabel: 'Cancel',
       },
       restartRun,
       () => {
@@ -604,7 +620,7 @@ function startGame({ engine, screens, assets }) {
     state.timeInPhase = 0;
     currentWave = waveForNight(state.day);
     spawnSchedule = spawnPlan(state.day, CONFIG.nightLength);
-    hud.toast(`☾ Notte ${state.day} — si avvicinano!`, 'warn');
+    hud.toast(`☾ Night ${state.day} — they're coming!`, 'warn');
   }
 
   function startDay() {
@@ -617,7 +633,7 @@ function startGame({ engine, screens, assets }) {
     const mods = getModifiers(state, grid); // staffed radios add extra recruits
     tryRecruit(state, BUILDING_DEFS, recruitCount(state, mods));
     saveGame();
-    hud.toast(`☀ Giorno ${state.day} — ${weather.icon} ${weather.name}`, 'info');
+    hud.toast(`☀ Day ${state.day} — ${weather.icon} ${weather.name}`, 'info');
   }
 
   // Wipes the save and starts a fresh run on a new random seed.
@@ -670,7 +686,7 @@ function startGame({ engine, screens, assets }) {
       terrain.setGroundTile(t.x, t.z, 'grass');
       terrain.clearDecorationsAt(t.x, t.z);
       trackTileChange(t.x, t.z, 'grass');
-      pushEvent(state, 'depleted', 'Nodo esaurito.');
+      pushEvent(state, 'depleted', 'Node depleted.');
     }
     for (const t of planted) {
       terrain.setGroundTile(t.x, t.z, 'forest');
@@ -681,7 +697,7 @@ function startGame({ engine, screens, assets }) {
         1.5 + Math.random()
       );
       trackTileChange(t.x, t.z, 'forest');
-      pushEvent(state, 'planted', 'Il Guardaboschi ha piantato un albero.');
+      pushEvent(state, 'planted', `The ${getDef('forester')?.name ?? 'Forester'} planted a tree.`);
     }
 
     // Sentieri sterrati: i sopravvissuti inattivi tracciano da soli un
@@ -730,7 +746,8 @@ function startGame({ engine, screens, assets }) {
   }
 
   function drainEvents() {
-    for (const e of state.events.splice(0)) {
+    const drained = state.events.splice(0);
+    for (const e of drained) {
       const type =
         e.type === 'death' || e.type === 'destroyed' || e.type === 'defeat'
           ? 'error'
@@ -747,6 +764,8 @@ function startGame({ engine, screens, assets }) {
       else if (e.type === 'demolish' || e.type === 'destroyed') audio.play('demolish');
       else if (e.type === 'death' || e.type === 'defeat') audio.play('error');
     }
+    // The tutorial advances by observing the same events (read-only).
+    tutorial?.onEvents(drained);
   }
 
   let last = performance.now();
@@ -772,6 +791,14 @@ function startGame({ engine, screens, assets }) {
     }
 
     drainEvents();
+
+    // Tutorial: watches state deltas (phase, buildings, staffing) and the
+    // first camera input; runs on real time, never pauses the game.
+    tutorial?.update(
+      rawDt,
+      state,
+      cameraTouched || [...input.keys].some((k) => CAMERA_KEYS.has(k))
+    );
 
     // --- atmosphere hooks: sounds and particles from game-state deltas ---
     if (state.kills > prevKills) audio.play('zombie-die');
@@ -837,7 +864,7 @@ function startGame({ engine, screens, assets }) {
   }
 
   const bootWeather = WEATHERS[state.weather.current] ?? WEATHERS.clear;
-  hud.toast(`☀ Giorno ${state.day} — ${bootWeather.icon} ${bootWeather.name}`, 'info');
+  hud.toast(`☀ Day ${state.day} — ${bootWeather.icon} ${bootWeather.name}`, 'info');
   saveGame(); // autosave at the start of day 1 (or refresh the loaded save)
   updateLighting(getModifiers(state, grid));
   requestAnimationFrame(frame);
@@ -850,14 +877,14 @@ function boot() {
   const assetsPromise = loadAll();
 
   const begin = () => {
-    const loading = showMessage('Caricamento risorse…');
+    const loading = showMessage('Loading assets…');
     assetsPromise
       .then((assets) => {
         loading.remove();
         startGame({ engine, screens, assets });
       })
       .catch((err) => {
-        loading.textContent = `Errore nel caricamento degli asset: ${err.message}`;
+        loading.textContent = `Failed to load the assets: ${err.message}`;
       });
   };
 

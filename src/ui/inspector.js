@@ -30,7 +30,7 @@ function formatCost(cost) {
   const parts = Object.entries(cost).map(
     ([resource, amount]) => `${icon(resource)}${amount}`
   );
-  return parts.length > 0 ? parts.join(' ') : 'Gratis';
+  return parts.length > 0 ? parts.join(' ') : 'Free';
 }
 
 // Rates are projected per day and often fractional (site efficiency):
@@ -44,12 +44,12 @@ const fmtRate = (rate) => {
 // label plus the adjectives for full/reduced output. Future defs fall back
 // to a generic wording.
 const PROXIMITY_ROWS = {
-  well: { label: 'Falda', rich: 'Ricca', poor: 'Profonda' },
-  hunt: { label: 'Zona di caccia', rich: 'Ricca', poor: 'Povera' },
-  fish: { label: 'Pescosità', rich: 'Alta', poor: 'Bassa' },
-  ranch: { label: 'Mandrie vicine', rich: 'Presenti', poor: 'Lontane' },
+  well: { label: 'Water table', rich: 'Rich', poor: 'Deep' },
+  hunt: { label: 'Hunting grounds', rich: 'Rich', poor: 'Poor' },
+  fish: { label: 'Fish abundance', rich: 'High', poor: 'Low' },
+  ranch: { label: 'Nearby herds', rich: 'Present', poor: 'Far' },
 };
-const PROXIMITY_ROW_FALLBACK = { label: 'Resa zona', rich: 'Piena', poor: 'Ridotta' };
+const PROXIMITY_ROW_FALLBACK = { label: 'Site yield', rich: 'Full', poor: 'Reduced' };
 
 function h(tag, className, text) {
   const node = document.createElement(tag);
@@ -112,7 +112,7 @@ export function createInspector(root, { state, grid, input, placement, visuals, 
     head.appendChild(dyn.titleEl);
     const closeBtn = h('button', 'inspector-close', '✖');
     closeBtn.type = 'button';
-    closeBtn.title = 'Chiudi';
+    closeBtn.title = 'Close';
     closeBtn.addEventListener('click', deselect);
     head.appendChild(closeBtn);
     rootEl.appendChild(head);
@@ -138,7 +138,7 @@ export function createInspector(root, { state, grid, input, placement, visuals, 
       if (!cur) return;
       const cost = repairCost(cur, defs[cur.defId]);
       if (!canAfford(state, { cost })) {
-        pushEvent(state, 'fuel', `Risorse insufficienti: servono ${formatCost(cost)} per riparare.`);
+        pushEvent(state, 'fuel', `Not enough resources: need ${formatCost(cost)} to repair.`);
       } else {
         startRepair(state, cur, defs[cur.defId]);
       }
@@ -152,38 +152,38 @@ export function createInspector(root, { state, grid, input, placement, visuals, 
     const rows = h('div', 'inspector-rows');
     dyn.produceRows = [];
     for (const [resource, amount] of Object.entries(def.produces ?? {})) {
-      const suffix = resource === 'energy' && def.energyDayOnly ? ' (solo di giorno)' : '';
-      const valueEl = addRow(rows, 'Produce', '');
+      const suffix = resource === 'energy' && def.energyDayOnly ? ' (day only)' : '';
+      const valueEl = addRow(rows, 'Produces', '');
       dyn.produceRows.push({ valueEl, resource, base: amount, suffix });
     }
     for (const [resource, amount] of Object.entries(def.consumes ?? {})) {
-      addRow(rows, 'Consuma', `${icon(resource)} ${amount}/giorno`);
+      addRow(rows, 'Consumes', `${icon(resource)} ${amount}/day`);
     }
-    if (def.requiresEnergy) addRow(rows, 'Richiede', `⚡ ${def.requiresEnergy}/giorno`);
+    if (def.requiresEnergy) addRow(rows, 'Requires', `⚡ ${def.requiresEnergy}/day`);
     if (def.extracts) {
-      addRow(rows, 'Estrae', `${icon(TILE_YIELDS[def.extracts]?.resource)} ${def.extractRate}/giorno`);
-      dyn.nodesValue = addRow(rows, 'Nodi residui in raggio', '');
+      addRow(rows, 'Extracts', `${icon(TILE_YIELDS[def.extracts]?.resource)} ${def.extractRate}/day`);
+      dyn.nodesValue = addRow(rows, 'Nodes left in range', '');
     }
-    if (def.researchRate) addRow(rows, 'Ricerca', `🔬 ${def.researchRate}/giorno`);
+    if (def.researchRate) addRow(rows, 'Research', `🔬 ${def.researchRate}/day`);
     if (def.proximity) {
       dyn.proxRow = PROXIMITY_ROWS[b.defId] ?? PROXIMITY_ROW_FALLBACK;
       dyn.effValue = addRow(rows, dyn.proxRow.label, '');
     }
     if (Object.keys(def.capBonus ?? {}).length > 0) {
-      dyn.capValue = addRow(rows, 'Capacità rete', '');
+      dyn.capValue = addRow(rows, 'Grid capacity', '');
     }
-    if (def.isTrap) addRow(rows, 'Danno trappola', `${def.trapDamage} al passaggio`);
-    if (b.defId === 'clinic') addRow(rows, 'Effetto', 'Fame e sete −15% (con personale)');
-    if (b.defId === 'radio') addRow(rows, 'Effetto', '+1 sopravvissuto a ogni alba (con personale)');
-    if (b.defId === 'spotlight') addRow(rows, 'Effetto', 'Torri +20% danno (rete attiva)');
-    if (b.defId === 'streetlamp') addRow(rows, 'Effetto', 'Guarnigione e milizia +25% danno (rete attiva)');
-    if (b.defId === 'motor') addRow(rows, 'Effetto', 'Estrazione +25% (rete attiva)');
-    if (b.defId === 'road') addRow(rows, 'Effetto', 'Estrazione +2% per strada (max +40%)');
-    if (b.defId === 'garage') addRow(rows, 'Effetto', 'Estrazione +50% (con personale)');
-    if (b.defId === 'ranch') addRow(rows, 'Effetto', 'Fattorie +15% ed estrazione +10% (con personale)');
+    if (def.isTrap) addRow(rows, 'Trap damage', `${def.trapDamage} per trigger`);
+    if (b.defId === 'clinic') addRow(rows, 'Effect', 'Hunger and thirst −15% (when staffed)');
+    if (b.defId === 'radio') addRow(rows, 'Effect', '+1 survivor each dawn (when staffed)');
+    if (b.defId === 'spotlight') addRow(rows, 'Effect', 'Towers +20% damage (grid active)');
+    if (b.defId === 'streetlamp') addRow(rows, 'Effect', 'Garrison and militia +25% damage (grid active)');
+    if (b.defId === 'motor') addRow(rows, 'Effect', 'Extraction +25% (grid active)');
+    if (b.defId === 'road') addRow(rows, 'Effect', 'Extraction +2% per road (max +40%)');
+    if (b.defId === 'garage') addRow(rows, 'Effect', 'Extraction +50% (when staffed)');
+    if (b.defId === 'ranch') addRow(rows, 'Effect', 'Farms +15% and extraction +10% (when staffed)');
     // Self-defense row: garrison for staffed buildings, militia for the HQ.
     if (!def.isTower && (def.jobs > 0 || b.defId === 'hq')) {
-      dyn.garrisonValue = addRow(rows, b.defId === 'hq' ? 'Milizia' : 'Guarnigione', '');
+      dyn.garrisonValue = addRow(rows, b.defId === 'hq' ? 'Militia' : 'Garrison', '');
     }
     if (rows.children.length > 0) rootEl.appendChild(rows);
 
@@ -193,7 +193,7 @@ export function createInspector(root, { state, grid, input, placement, visuals, 
       const wrap = h('div', 'inspector-workers');
       dyn.minusBtn = h('button', 'inspector-worker-btn', '−');
       dyn.minusBtn.type = 'button';
-      dyn.minusBtn.title = 'Rimuovi un lavoratore';
+      dyn.minusBtn.title = 'Remove a worker';
       dyn.minusBtn.addEventListener('click', () => {
         const cur = findBuilding(state, selectedId);
         if (cur && unassignWorker(state, cur.id)) update();
@@ -201,20 +201,20 @@ export function createInspector(root, { state, grid, input, placement, visuals, 
       dyn.workersText = h('span', 'inspector-workers-text');
       dyn.plusBtn = h('button', 'inspector-worker-btn', '+');
       dyn.plusBtn.type = 'button';
-      dyn.plusBtn.title = 'Assegna un lavoratore';
+      dyn.plusBtn.title = 'Assign a worker';
       dyn.plusBtn.addEventListener('click', () => {
         const cur = findBuilding(state, selectedId);
         if (cur && assignWorker(state, cur.id, defs)) update();
       });
       dyn.autoBadge = h('span', 'inspector-auto', 'auto');
-      dyn.autoBadge.title = 'Assegnazione automatica dei lavoratori attiva';
+      dyn.autoBadge.title = 'Automatic worker assignment is active';
       wrap.append(dyn.minusBtn, dyn.workersText, dyn.plusBtn, dyn.autoBadge);
       rootEl.appendChild(wrap);
     }
 
-    const demolishBtn = h('button', 'inspector-demolish', '🔨 Demolisci');
+    const demolishBtn = h('button', 'inspector-demolish', '🔨 Demolish');
     demolishBtn.type = 'button';
-    demolishBtn.title = 'Demolisci questo edificio (rimborso parziale)';
+    demolishBtn.title = 'Demolish this building (partial refund)';
     demolishBtn.addEventListener('click', () => {
       const cur = findBuilding(state, selectedId);
       if (!cur) {
@@ -225,7 +225,7 @@ export function createInspector(root, { state, grid, input, placement, visuals, 
       deselect();
     });
 
-    // On/off toggle next to Demolisci: switching off frees the workers and
+    // On/off toggle next to Demolish: switching off frees the workers and
     // greys out the model via visuals.setEnabled.
     dyn.toggleBtn = h('button', 'inspector-toggle');
     dyn.toggleBtn.type = 'button';
@@ -249,7 +249,7 @@ export function createInspector(root, { state, grid, input, placement, visuals, 
         if (!cur) return;
         const cost = upgradeCost(cur, defs[cur.defId]);
         if (!canAfford(state, { cost })) {
-          pushEvent(state, 'fuel', `Risorse insufficienti: servono ${formatCost(cost)} per potenziare.`);
+          pushEvent(state, 'fuel', `Not enough resources: need ${formatCost(cost)} to upgrade.`);
         } else if (upgradeBuilding(state, cur, defs[cur.defId])) {
           // maxHp è cresciuto: rinfresca la tinta danno col nuovo rapporto.
           visuals?.setDamaged(cur.id, cur.maxHp > 0 ? Math.max(0, cur.hp) / cur.maxHp : 1);
@@ -287,11 +287,11 @@ export function createInspector(root, { state, grid, input, placement, visuals, 
     if (dyn.repairBtn) {
       const cost = repairCost(b, def);
       dyn.repairBtn.textContent = b.repairing
-        ? '🔧 Riparazione in corso…'
+        ? '🔧 Repairing…'
         : b.hp < b.maxHp
-          ? `🔧 Ripara (${formatCost(cost)})`
-          : '🔧 Ripara';
-      dyn.repairBtn.title = 'Ripara gli hp man mano: costo proporzionale al danno';
+          ? `🔧 Repair (${formatCost(cost)})`
+          : '🔧 Repair';
+      dyn.repairBtn.title = 'Repairs hp over time: cost is proportional to the damage';
       dyn.repairBtn.disabled = b.repairing || b.hp >= b.maxHp;
       dyn.repairBtn.setAttribute(
         'aria-disabled',
@@ -299,10 +299,10 @@ export function createInspector(root, { state, grid, input, placement, visuals, 
       );
     }
     if (dyn.toggleBtn) {
-      dyn.toggleBtn.textContent = off ? '⏻ Riattiva' : '⏻ Spegni';
+      dyn.toggleBtn.textContent = off ? '⏻ Switch on' : '⏻ Switch off';
       dyn.toggleBtn.title = off
-        ? 'Riattiva questo edificio'
-        : 'Spegni questo edificio: niente produzione né consumi, i lavoratori vengono liberati';
+        ? 'Switch this building back on'
+        : 'Switch this building off: no production or consumption, workers are freed';
       dyn.toggleBtn.classList.toggle('inspector-toggle--off', off);
     }
     if (dyn.upgradeBtn) {
@@ -310,11 +310,11 @@ export function createInspector(root, { state, grid, input, placement, visuals, 
       const maxed = level >= MAX_LEVEL;
       const cost = upgradeCost(b, def);
       dyn.upgradeBtn.textContent = maxed
-        ? '⬆ Livello massimo'
-        : `⬆ Potenzia (${formatCost(cost)})`;
+        ? '⬆ Max level'
+        : `⬆ Upgrade (${formatCost(cost)})`;
       dyn.upgradeBtn.title = maxed
-        ? `L'edificio è al livello massimo (★${MAX_LEVEL})`
-        : `Porta l'edificio a ★${level + 1}: +50% produzione/estrazione/danno e più hp`;
+        ? `This building is at max level (★${MAX_LEVEL})`
+        : `Upgrade the building to ★${level + 1}: +50% production/extraction/damage and more hp`;
       dyn.upgradeBtn.disabled = maxed;
       dyn.upgradeBtn.setAttribute('aria-disabled', String(!maxed && !canAfford(state, { cost })));
     }
@@ -330,8 +330,8 @@ export function createInspector(root, { state, grid, input, placement, visuals, 
         const rate = output[row.resource] ?? 0;
         row.valueEl.textContent =
           Math.abs(rate - row.base) < 0.05
-            ? `${icon(row.resource)} ${fmtRate(rate)}/giorno${row.suffix}`
-            : `${icon(row.resource)} ${fmtRate(rate)}/giorno (base ${row.base})${row.suffix}`;
+            ? `${icon(row.resource)} ${fmtRate(rate)}/day${row.suffix}`
+            : `${icon(row.resource)} ${fmtRate(rate)}/day (base ${row.base})${row.suffix}`;
       }
     }
     if (dyn.nodesValue) {
@@ -355,10 +355,10 @@ export function createInspector(root, { state, grid, input, placement, visuals, 
       const dps = (GARRISON_DAMAGE * guns) / GARRISON_FIRE_INTERVAL;
       dyn.garrisonValue.textContent =
         guns > 0
-          ? `${guns} ${guns === 1 ? 'fucile' : 'fucili'} · ${fmtRate(dps)} DPS`
+          ? `${guns} ${guns === 1 ? 'rifle' : 'rifles'} · ${fmtRate(dps)} DPS`
           : b.defId === 'hq'
-            ? 'nessun inattivo a presidio'
-            : 'indifeso senza personale';
+            ? 'no idle survivors on guard'
+            : 'defenseless without staff';
     }
   }
 

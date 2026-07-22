@@ -41,7 +41,7 @@ const SPEC = {
   },
   tent: { category: 'abitazioni', cost: { wood: 15 }, w: 1, h: 1, hp: 100, houses: 2, model: 'tent' },
   shack: {
-    category: 'abitazioni', name: 'Baracca', cost: { wood: 10 }, w: 1, h: 1, hp: 80,
+    category: 'abitazioni', name: 'Shack', cost: { wood: 10 }, w: 1, h: 1, hp: 80,
     houses: 3, model: 'shack',
   },
   house: { category: 'abitazioni', cost: { wood: 25, metal: 10 }, w: 2, h: 2, hp: 200, houses: 4, model: 'house' },
@@ -50,87 +50,87 @@ const SPEC = {
     produces: { food: 8 }, consumes: { water: 3 }, model: 'farm',
   },
   garden: {
-    category: 'sostentamento', name: 'Orto', cost: { wood: 15 }, w: 1, h: 1, hp: 100,
+    category: 'sostentamento', name: 'Garden', cost: { wood: 15 }, w: 1, h: 1, hp: 100,
     jobs: 1, produces: { food: 4 }, consumes: { water: 2 }, model: 'garden',
   },
   greenhouse: {
-    category: 'sostentamento', name: 'Serra', cost: { wood: 40, metal: 20 }, w: 2, h: 2, hp: 180,
+    category: 'sostentamento', name: 'Greenhouse', cost: { wood: 40, metal: 20 }, w: 2, h: 2, hp: 180,
     jobs: 2, produces: { food: 14 }, consumes: { water: 5 }, requiresEnergy: 1, model: 'greenhouse',
   },
   rain: {
-    category: 'sostentamento', name: 'Raccoglitore di pioggia', cost: { wood: 15 }, w: 1, h: 1, hp: 80,
+    category: 'sostentamento', name: 'Rain Collector', cost: { wood: 15 }, w: 1, h: 1, hp: 80,
     produces: { water: 4 }, model: 'rain-collector',
   },
   well: {
-    category: 'sostentamento', name: 'Pozzo', cost: { wood: 20, metal: 10 }, w: 1, h: 1, hp: 100,
+    category: 'sostentamento', name: 'Well', cost: { wood: 20, metal: 10 }, w: 1, h: 1, hp: 100,
     jobs: 0, produces: { water: 8 }, model: 'well',
     proximity: { tile: 'water', range: 3, poor: 0.4 },
   },
   cistern: {
-    category: 'sostentamento', name: 'Cisterna', cost: { metal: 25 }, w: 1, h: 1, hp: 150,
+    category: 'sostentamento', name: 'Cistern', cost: { metal: 25 }, w: 1, h: 1, hp: 150,
     produces: { water: 2 }, capBonus: { water: 60 }, model: 'cistern',
   },
   hunt: {
-    category: 'sostentamento', name: 'Capanno da caccia', cost: { wood: 20 }, w: 1, h: 1, hp: 100,
+    category: 'sostentamento', name: 'Hunting Cabin', cost: { wood: 20 }, w: 1, h: 1, hp: 100,
     jobs: 1, produces: { food: 6 }, model: 'hunt',
     proximity: { tile: 'forest', range: 3, poor: 0.5 },
   },
   fish: {
-    category: 'sostentamento', name: 'Capanno da pesca', cost: { wood: 15 }, w: 1, h: 1, hp: 100,
+    category: 'sostentamento', name: 'Fishing Cabin', cost: { wood: 15 }, w: 1, h: 1, hp: 100,
     jobs: 1, produces: { food: 5 }, model: 'fish',
     proximity: { tile: 'water', range: 2, poor: 0.5 },
   },
   ranch: {
-    category: 'sostentamento', name: 'Allevamento', cost: { wood: 40 }, w: 2, h: 2, hp: 150,
+    category: 'sostentamento', name: 'Ranch', cost: { wood: 40 }, w: 2, h: 2, hp: 150,
     jobs: 2, produces: { food: 6 }, model: 'ranch',
     proximity: { tile: 'wildlife', range: 3, poor: 0.5 },
   },
   lumber: {
-    category: 'risorse', name: 'Tagliaboschi', cost: { wood: 15 }, w: 1, h: 1, hp: 120,
+    category: 'risorse', name: 'Lumberjack', cost: { wood: 15 }, w: 1, h: 1, hp: 120,
     jobs: 2, extracts: 'forest', extractRate: 10, model: 'lumber',
   },
   forester: {
-    category: 'risorse', name: 'Guardaboschi', cost: { wood: 20 }, w: 1, h: 1, hp: 120,
+    category: 'risorse', name: 'Forester', cost: { wood: 20 }, w: 1, h: 1, hp: 120,
     jobs: 1, extracts: null, plants: 'forest', requiresTech: 'forestry', model: 'forester',
   },
   scavenger: {
-    category: 'risorse', name: 'Rottamatore', cost: { wood: 25 }, w: 2, h: 2, hp: 150,
+    category: 'risorse', name: 'Scavenger', cost: { wood: 25 }, w: 2, h: 2, hp: 150,
     jobs: 2, extracts: 'ruins', extractRate: 6, model: 'scrapyard',
   },
   mine: {
-    category: 'risorse', name: 'Miniera', cost: { wood: 30, metal: 20 }, w: 2, h: 2, hp: 250,
+    category: 'risorse', name: 'Mine', cost: { wood: 30, metal: 20 }, w: 2, h: 2, hp: 250,
     jobs: 3, extracts: 'ore', extractRate: 8, requiresTech: 'mining', model: 'mine',
   },
   smelter: {
-    category: 'risorse', name: 'Fonderia', cost: { wood: 30, metal: 30 }, w: 2, h: 2, hp: 250,
+    category: 'risorse', name: 'Smelter', cost: { wood: 30, metal: 30 }, w: 2, h: 2, hp: 250,
     jobs: 2, produces: { metal: 3 }, consumes: { wood: 2 }, model: 'smelter',
   },
   distillery: {
-    category: 'risorse', name: 'Distillatore', cost: { wood: 30, metal: 15 }, w: 1, h: 1, hp: 120,
+    category: 'risorse', name: 'Distillery', cost: { wood: 30, metal: 15 }, w: 1, h: 1, hp: 120,
     jobs: 1, produces: { fuel: 4 }, consumes: { wood: 3 }, model: 'distillery',
   },
   garage: {
-    category: 'risorse', name: 'Autorimessa', cost: { wood: 40, metal: 30 }, w: 2, h: 2, hp: 200,
+    category: 'risorse', name: 'Garage', cost: { wood: 40, metal: 30 }, w: 2, h: 2, hp: 200,
     jobs: 1, consumes: { fuel: 3 }, model: 'garage',
   },
   warehouse: {
-    category: 'risorse', name: 'Magazzino', cost: { wood: 40 }, w: 2, h: 2, hp: 300,
+    category: 'risorse', name: 'Warehouse', cost: { wood: 40 }, w: 2, h: 2, hp: 300,
     capBonus: { food: 100, wood: 100, metal: 100 }, model: 'warehouse',
   },
   lab: {
-    category: 'infrastrutture', name: 'Laboratorio', cost: { wood: 30, metal: 25 }, w: 2, h: 2,
+    category: 'infrastrutture', name: 'Laboratory', cost: { wood: 30, metal: 25 }, w: 2, h: 2,
     hp: 200, jobs: 2, researchRate: 4, model: 'lab',
   },
   clinic: {
-    category: 'infrastrutture', name: 'Infermeria', cost: { wood: 30, metal: 15 }, w: 2, h: 2,
+    category: 'infrastrutture', name: 'Clinic', cost: { wood: 30, metal: 15 }, w: 2, h: 2,
     hp: 200, jobs: 1, model: 'clinic',
   },
   radio: {
-    category: 'infrastrutture', name: 'Radio di emergenza', cost: { wood: 30, metal: 20 },
+    category: 'infrastrutture', name: 'Emergency Radio', cost: { wood: 30, metal: 20 },
     w: 1, h: 1, hp: 120, jobs: 1, model: 'radio',
   },
   road: {
-    category: 'infrastrutture', name: 'Strada', cost: { wood: 2 }, w: 1, h: 1, hp: 50,
+    category: 'infrastrutture', name: 'Road', cost: { wood: 2 }, w: 1, h: 1, hp: 50,
     jobs: 0, model: 'road', isRoad: true,
   },
   solar: {
@@ -138,60 +138,60 @@ const SPEC = {
     produces: { energy: 5 }, energyDayOnly: true, model: 'solar-panel',
   },
   'solar-plant': {
-    category: 'energia', name: 'Impianto solare', cost: { metal: 80 }, w: 2, h: 2, hp: 150,
+    category: 'energia', name: 'Solar Plant', cost: { metal: 80 }, w: 2, h: 2, hp: 150,
     produces: { energy: 14 }, energyDayOnly: true, requiresTech: 'solar2', model: 'solar-plant',
   },
   wind: {
-    category: 'energia', name: 'Turbina eolica', cost: { metal: 45 }, w: 1, h: 1, hp: 120,
+    category: 'energia', name: 'Wind Turbine', cost: { metal: 45 }, w: 1, h: 1, hp: 120,
     produces: { energy: 3 }, model: 'wind-turbine',
   },
   generator: {
-    category: 'energia', name: 'Generatore', cost: { metal: 40 }, w: 1, h: 1, hp: 120,
+    category: 'energia', name: 'Generator', cost: { metal: 40 }, w: 1, h: 1, hp: 120,
     jobs: 1, produces: { energy: 6 }, consumes: { wood: 3 }, model: 'generator',
   },
   motor: {
-    category: 'energia', name: 'Motore elettrico', cost: { metal: 30 }, w: 1, h: 1, hp: 120,
+    category: 'energia', name: 'Electric Motor', cost: { metal: 30 }, w: 1, h: 1, hp: 120,
     jobs: 0, requiresEnergy: 2, model: 'motor',
   },
   battery: {
-    category: 'energia', name: 'Batteria', cost: { metal: 35 }, w: 1, h: 1, hp: 100,
+    category: 'energia', name: 'Battery', cost: { metal: 35 }, w: 1, h: 1, hp: 100,
     capBonus: { energy: 50 }, requiresTech: 'batteries', model: 'battery',
   },
   palisade: {
-    category: 'difesa', name: 'Palizzata', cost: { wood: 8 }, w: 1, h: 1, hp: 200,
+    category: 'difesa', name: 'Palisade', cost: { wood: 8 }, w: 1, h: 1, hp: 200,
     isWall: true, model: 'palisade',
   },
   'scrap-wall': {
-    category: 'difesa', name: 'Muro di lamiere', cost: { metal: 15 }, w: 1, h: 1, hp: 450,
+    category: 'difesa', name: 'Scrap Wall', cost: { metal: 15 }, w: 1, h: 1, hp: 450,
     isWall: true, model: 'scrap-wall',
   },
   'brick-wall': {
-    category: 'difesa', name: 'Muro di mattoni', cost: { wood: 20 }, w: 1, h: 1, hp: 800,
+    category: 'difesa', name: 'Brick Wall', cost: { wood: 20 }, w: 1, h: 1, hp: 800,
     isWall: true, model: 'brick-wall',
   },
   'concrete-wall': {
-    category: 'difesa', name: 'Muro in cemento armato', cost: { metal: 30 }, w: 1, h: 1, hp: 1400,
+    category: 'difesa', name: 'Concrete Wall', cost: { metal: 30 }, w: 1, h: 1, hp: 1400,
     isWall: true, requiresTech: 'concrete', model: 'concrete-wall',
   },
   tower: {
-    category: 'difesa', name: 'Torre di guardia', cost: { wood: 20, metal: 30 }, w: 1, h: 1, hp: 200,
+    category: 'difesa', name: 'Watch Tower', cost: { wood: 20, metal: 30 }, w: 1, h: 1, hp: 200,
     jobs: 1, isTower: true, damage: 10, range: 6, fireRate: 1, requiresEnergy: 1, model: 'tower',
   },
   sniper: {
-    category: 'difesa', name: 'Torretta automatica', cost: { metal: 35 }, w: 1, h: 1, hp: 250,
+    category: 'difesa', name: 'Sniper Turret', cost: { metal: 35 }, w: 1, h: 1, hp: 250,
     jobs: 1, isTower: true, damage: 22, range: 8, fireRate: 0.8, requiresEnergy: 2,
     requiresTech: 'ballistics', model: 'sniper-tower',
   },
   spotlight: {
-    category: 'difesa', name: 'Faro da campo', cost: { wood: 25, metal: 15 }, w: 1, h: 1,
+    category: 'difesa', name: 'Field Spotlight', cost: { wood: 25, metal: 15 }, w: 1, h: 1,
     hp: 120, jobs: 0, requiresEnergy: 2, model: 'spotlight',
   },
   streetlamp: {
-    category: 'difesa', name: 'Lampione', cost: { wood: 10, metal: 5 }, w: 1, h: 1,
+    category: 'difesa', name: 'Street Lamp', cost: { wood: 10, metal: 5 }, w: 1, h: 1,
     hp: 80, jobs: 0, requiresEnergy: 1, model: 'streetlamp',
   },
   trap: {
-    category: 'difesa', name: 'Campo di trappole', cost: { wood: 10 }, w: 1, h: 1, hp: 100,
+    category: 'difesa', name: 'Trap Field', cost: { wood: 10 }, w: 1, h: 1, hp: 100,
     isTrap: true, trapDamage: 6, model: 'trap',
   },
 };
@@ -251,12 +251,12 @@ describe('BUILDING_DEFS', () => {
 
   it('CATEGORIES lists the six categories in display order', () => {
     expect(CATEGORIES).toEqual([
-      { id: 'abitazioni', name: 'Abitazioni', icon: '🏠' },
-      { id: 'sostentamento', name: 'Sostentamento', icon: '🥫' },
-      { id: 'risorse', name: 'Risorse', icon: '🪵' },
-      { id: 'energia', name: 'Energia', icon: '⚡' },
-      { id: 'difesa', name: 'Difesa', icon: '🛡️' },
-      { id: 'infrastrutture', name: 'Infrastrutture', icon: '🏛️' },
+      { id: 'abitazioni', name: 'Housing', icon: '🏠' },
+      { id: 'sostentamento', name: 'Sustenance', icon: '🥫' },
+      { id: 'risorse', name: 'Resources', icon: '🪵' },
+      { id: 'energia', name: 'Energy', icon: '⚡' },
+      { id: 'difesa', name: 'Defense', icon: '🛡️' },
+      { id: 'infrastrutture', name: 'Infrastructure', icon: '🏛️' },
     ]);
   });
 

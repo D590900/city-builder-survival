@@ -119,7 +119,7 @@ describe('survivors hunger and thirst', () => {
     expect(farm.workers).toHaveLength(0);
     const death = state.events.find((e) => e.type === 'death');
     expect(death).toBeDefined();
-    expect(death.msg).toContain('fame');
+    expect(death.msg).toContain('starved to death');
   });
 
   it('dies of thirst at thirst 100, with a distinct death event', () => {
@@ -135,7 +135,7 @@ describe('survivors hunger and thirst', () => {
     expect(farm.workers).toHaveLength(0);
     const death = state.events.find((e) => e.type === 'death');
     expect(death).toBeDefined();
-    expect(death.msg).toContain('sete');
+    expect(death.msg).toContain('died of thirst');
   });
 
   it('mods.hungerRate and mods.thirstRate scale the gains', () => {

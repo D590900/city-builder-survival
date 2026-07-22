@@ -4,15 +4,15 @@
 // screen is visible at a time; the overlay sits above the rest of the UI
 // (z-index) and re-enables pointer events. No DOM access at import time.
 
-const TITLE = 'ULTIMO RIFUGIO';
+const TITLE = 'LAST REFUGE';
 
 const INSTRUCTIONS = [
-  ['WASD', 'muovi la camera'],
-  ['Rotella del mouse', 'zoom'],
-  ['Q / E', 'ruota la camera'],
-  ['Click', 'costruisci'],
-  ['R', "ruota l'edificio"],
-  ['ESC', 'annulla'],
+  ['WASD', 'move the camera'],
+  ['Mouse wheel', 'zoom'],
+  ['Q / E', 'rotate the camera'],
+  ['Click', 'build'],
+  ['R', 'rotate the building'],
+  ['ESC', 'cancel'],
 ];
 
 function h(tag, className, text) {
@@ -71,11 +71,11 @@ export function createScreens(root) {
     const kills = stats.kills ?? stats.uccisioni ?? 0;
     const survivors = stats.survivors ?? stats.sopravvissuti ?? 0;
     const rows = [
-      ['Giorni', days],
-      ['Uccisioni', kills],
-      ['Sopravvissuti', survivors],
+      ['Days', days],
+      ['Kills', kills],
+      ['Survivors', survivors],
     ];
-    if (stats.reputation != null) rows.push(['Reputazione', stats.reputation]);
+    if (stats.reputation != null) rows.push(['Reputation', stats.reputation]);
     const grid = h('div', 'screen-stats');
     for (const [label, value] of rows) {
       const stat = h('div', 'screen-stat');
@@ -97,7 +97,7 @@ export function createScreens(root) {
       h(
         'p',
         'screen-subtitle',
-        'La città è caduta. La notte appartiene ai non-morti. Costruisci il tuo rifugio e resisti.'
+        'The city has fallen. The night belongs to the undead. Build your refuge and hold on.'
       )
     );
     const box = h('div', 'screen-instructions');
@@ -108,14 +108,14 @@ export function createScreens(root) {
     }
     panel.appendChild(box);
     panel.appendChild(
-      h('p', 'screen-goal', 'Obiettivo: resisti il più a lungo possibile.')
+      h('p', 'screen-goal', 'Objective: survive as long as possible.')
     );
     if (record > 0) {
       panel.appendChild(
-        h('p', 'screen-record', `Record: ${record} ${record === 1 ? 'notte' : 'notti'}`)
+        h('p', 'screen-record', `Record: ${record} ${record === 1 ? 'night' : 'nights'}`)
       );
     }
-    panel.appendChild(makeButton('Inizia la partita', onStart));
+    panel.appendChild(makeButton('Start game', onStart));
     o.appendChild(panel);
   }
 
@@ -126,7 +126,7 @@ export function createScreens(root) {
       h('h1', `screen-title ${titleClass}`, title),
       h('p', 'screen-subtitle', subtitle),
       statsGrid(stats),
-      makeButton('Gioca ancora', onRestart)
+      makeButton('Play again', onRestart)
     );
     o.appendChild(panel);
   }
@@ -138,12 +138,12 @@ export function createScreens(root) {
     const record = stats?.record ?? null;
     const score =
       record != null
-        ? `Notti superate: ${nights} — Record: ${record}.`
-        : `Notti superate: ${nights}.`;
+        ? `Nights survived: ${nights} — Record: ${record}.`
+        : `Nights survived: ${nights}.`;
     endScreen(
       {
-        title: 'IL RIFUGIO È CADUTO',
-        subtitle: `${score} Le orde hanno avuto il sopravvento.`,
+        title: 'THE REFUGE HAS FALLEN',
+        subtitle: `${score} The hordes have prevailed.`,
         titleClass: 'screen-title--defeat',
       },
       stats,
@@ -157,7 +157,7 @@ export function createScreens(root) {
    * title, message, confirmLabel and cancelLabel.
    */
   function showConfirm(
-    { title, message, confirmLabel = 'Conferma', cancelLabel = 'Annulla' } = {},
+    { title, message, confirmLabel = 'Confirm', cancelLabel = 'Cancel' } = {},
     onConfirm,
     onCancel
   ) {

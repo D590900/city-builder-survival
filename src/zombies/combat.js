@@ -228,12 +228,12 @@ export function createCombat({ scene, state, grid, visuals, onShot, onDestroyed 
     const def = getDef(b.defId);
     const inPericolo =
       b.workers.length === 1
-        ? '1 lavoratore in pericolo'
-        : `${b.workers.length} lavoratori in pericolo`;
+        ? '1 worker in danger'
+        : `${b.workers.length} workers in danger`;
     pushEvent(
       state,
       'fuel',
-      `⚠ ${def?.name ?? b.defId} sotto attacco — ${inPericolo}! Spegnilo o sganciali per salvarli.`
+      `⚠ ${def?.name ?? b.defId} under attack — ${inPericolo}! Switch it off or unassign the workers to save them.`
     );
   }
 
@@ -253,15 +253,13 @@ export function createCombat({ scene, state, grid, visuals, onShot, onDestroyed 
       }
 
       const def = getDef(b.defId);
-      let msg = `Distruzione: ${def?.name ?? b.defId}!`;
       // Chi lavorava nell'edificio muore con lui (il Rifugio è game over:
       // niente conteggio, ci pensa l'evento di sconfitta).
-      if (b.defId !== 'hq' && b.workers.length > 0) {
-        const dead = killBuildingWorkers(state, b);
-        if (dead === 1) msg += ' 1 lavoratore è morto.';
-        else if (dead > 1) msg += ` ${dead} lavoratori sono morti.`;
-      }
-      pushEvent(state, 'destroyed', msg);
+      const dead =
+        b.defId !== 'hq' && b.workers.length > 0 ? killBuildingWorkers(state, b) : 0;
+      const casualties =
+        dead === 1 ? ' 1 worker died.' : dead > 1 ? ` ${dead} workers died.` : '';
+      pushEvent(state, 'destroyed', `Destroyed: ${def?.name ?? b.defId}!${casualties}`);
       onDestroyed?.(b, buildingCenterWorld(b));
       removeBuilding(state, b.id);
       release(grid, b.id);
@@ -271,7 +269,7 @@ export function createCombat({ scene, state, grid, visuals, onShot, onDestroyed 
       warnCooldowns.delete(b.id);
       if (b.defId === 'hq') {
         state.gameOver = 'defeat';
-        pushEvent(state, 'defeat', 'Il Rifugio è caduto. La colonia è persa.');
+        pushEvent(state, 'defeat', 'The Refuge has fallen. The colony is lost.');
       }
     }
   }
