@@ -1,7 +1,7 @@
 // Node extraction: depletable resource tiles (forest/ruins/ore) drained by
 // extractors, and renewable planting by foresters. Pure logic, no I/O.
 
-import { levelMultiplier } from './economy.js';
+import { levelMultiplier, effectiveCaps } from './economy.js';
 
 const DAY_LENGTH = 90; // seconds per game day (mirrors state.js CONFIG)
 
@@ -98,16 +98,16 @@ function nearestFreeGrass(grid, b, range) {
 
 // Extractor tick: continuous production at extractRate * staffing *
 // mods.extractProd * level per day, but only while matching nodes remain in
-// range. Only production that actually fits under the resource cap is
-// accumulated in b.extracted; each full tile yield depletes the nearest node
-// to grass.
-function tickExtractor(state, grid, b, def, ratio, dt, mods, result) {
+// range. Only production that actually fits under the effective resource cap
+// (base cap + storage bonuses, see economy.js effectiveCaps) is accumulated
+// in b.extracted; each full tile yield depletes the nearest node to grass.
+function tickExtractor(state, grid, b, def, ratio, dt, mods, result, caps) {
   const yieldDef = TILE_YIELDS[def.extracts];
   if (!yieldDef) return;
   if (countNodesInRange(grid, b, def.extracts) === 0) return; // no nodes: idle
   const perDay = def.extractRate * ratio * (mods?.extractProd ?? 1) * levelMultiplier(b.level);
   const gained = (perDay * dt) / DAY_LENGTH;
-  const cap = state.caps?.[yieldDef.resource] ?? Infinity;
+  const cap = caps?.[yieldDef.resource] ?? Infinity;
   const before = state.resources[yieldDef.resource] ?? 0;
   const after = Math.min(cap, before + gained);
   state.resources[yieldDef.resource] = after;
@@ -144,13 +144,16 @@ function tickForester(state, grid, b, ratio, dt, result) {
 // { depleted: [{ x, z, fromType }], planted: [{ x, z }] }.
 export function tickExtraction(state, grid, dt, DEFS, mods) {
   const result = { depleted: [], planted: [] };
+  // Effective caps (storage bonuses included): the same ceiling the HUD
+  // shows, so extraction never stalls below the displayed capacity.
+  const caps = effectiveCaps(state, DEFS);
   for (const b of state.buildings) {
     const def = DEFS[b.defId];
     if (!def || b.enabled === false) continue; // spento: niente estrazione
     const ratio = staffingRatio(b, def);
     if (ratio <= 0) continue;
     if (def.extracts) {
-      tickExtractor(state, grid, b, def, ratio, dt, mods, result);
+      tickExtractor(state, grid, b, def, ratio, dt, mods, result, caps);
     }
     if (def.plants === 'forest') {
       tickForester(state, grid, b, ratio, dt, result);

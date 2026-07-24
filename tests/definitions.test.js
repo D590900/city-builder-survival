@@ -39,9 +39,9 @@ const SPEC = {
     category: 'infrastrutture', cost: {}, w: 3, h: 3, hp: 1000,
     produces: { energy: 4 }, jobs: 0, houses: 4, model: 'hq',
   },
-  tent: { category: 'abitazioni', cost: { wood: 15 }, w: 1, h: 1, hp: 100, houses: 2, model: 'tent' },
+  tent: { category: 'abitazioni', cost: { wood: 10 }, w: 1, h: 1, hp: 100, houses: 2, model: 'tent' },
   shack: {
-    category: 'abitazioni', name: 'Shack', cost: { wood: 10 }, w: 1, h: 1, hp: 80,
+    category: 'abitazioni', name: 'Shack', cost: { wood: 15 }, w: 1, h: 1, hp: 80,
     houses: 3, model: 'shack',
   },
   house: { category: 'abitazioni', cost: { wood: 25, metal: 10 }, w: 2, h: 2, hp: 200, houses: 4, model: 'house' },
@@ -82,7 +82,7 @@ const SPEC = {
   },
   ranch: {
     category: 'sostentamento', name: 'Ranch', cost: { wood: 40 }, w: 2, h: 2, hp: 150,
-    jobs: 2, produces: { food: 6 }, model: 'ranch',
+    jobs: 2, produces: { food: 10 }, model: 'ranch',
     proximity: { tile: 'wildlife', range: 3, poor: 0.5 },
   },
   lumber: {

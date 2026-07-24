@@ -103,10 +103,28 @@ export function generateMap(grid, seed = Date.now()) {
   cluster('ruins', ri(4, 8), 2, 3);
 
   // 5) Roads from the edges toward the center (buildable, walkable).
+  // Structured layout: 2-4 roads, at most one per edge, each a chain of
+  // long straight 4-connected segments with 1-2 deliberate bends (a lateral
+  // shift of 2-4 tiles, then straight again). The path is planned in a
+  // local list and committed only when it reaches at least 3 tiles, so
+  // short stubs (e.g. a road that immediately hits the river) are
+  // discarded and their border mouth stays plain walkable wasteland.
+  // Roads stop at water and at the edge of the center clearing.
   const roadStarts = [];
   const roadCount = ri(2, 4);
+  const edges = [0, 1, 2, 3];
+  for (let i = edges.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    const t = edges[i];
+    edges[i] = edges[j];
+    edges[j] = t;
+  }
+  const roadBlocked = (x, z) =>
+    x < 0 || z < 0 || x >= N || z >= N ||
+    grid.cells[z][x].type === 'water' ||
+    Math.hypot(x - N / 2, z - N / 2) < CENTER_CLEAR_RADIUS + 1;
   for (let i = 0; i < roadCount; i++) {
-    const edge = ri(0, 3);
+    const edge = edges[i];
     const pos = ri(4, N - 5);
     let x, z, dx, dz;
     if (edge === 0) { x = pos; z = 0; dx = 0; dz = 1; }
@@ -114,20 +132,37 @@ export function generateMap(grid, seed = Date.now()) {
     else if (edge === 2) { x = 0; z = pos; dx = 1; dz = 0; }
     else { x = N - 1; z = pos; dx = -1; dz = 0; }
     roadStarts.push({ x, z });
-    for (let s = 0; s < N; s++) {
-      if (grid.cells[z][x].type === 'water') break; // stop at the river
-      if (Math.hypot(x - N / 2, z - N / 2) < CENTER_CLEAR_RADIUS + 1) break;
-      setCell(x, z, 'road', true);
-      let nx = x + dx;
-      let nz = z + dz;
-      if (rng() < 0.25) { // slight lateral drift
-        if (dx === 0) nx += rng() < 0.5 ? 1 : -1;
-        else nz += rng() < 0.5 ? 1 : -1;
+    // Plan the path: alternate straight runs (6-14 tiles) with lateral
+    // shifts (2-4 tiles) at 1-2 bends. Every move is axis-aligned, so the
+    // road is always 4-connected.
+    const path = [{ x, z }];
+    let cx = x;
+    let cz = z;
+    let stop = roadBlocked(cx, cz);
+    const bends = ri(1, 2);
+    for (let seg = 0; seg <= bends && !stop; seg++) {
+      const straight = ri(6, 14);
+      for (let s = 0; s < straight && !stop; s++) {
+        if (roadBlocked(cx + dx, cz + dz)) { stop = true; break; }
+        cx += dx;
+        cz += dz;
+        path.push({ x: cx, z: cz });
       }
-      if (nx < 0 || nz < 0 || nx >= N || nz >= N) break;
-      if (grid.cells[nz][nx].type === 'water') break;
-      x = nx;
-      z = nz;
+      if (stop || seg === bends) break;
+      // Bend: shift sideways, orthogonal to the travel direction.
+      const sign = rng() < 0.5 ? 1 : -1;
+      const lx = dz !== 0 ? sign : 0;
+      const lz = dx !== 0 ? sign : 0;
+      const shift = ri(2, 4);
+      for (let s = 0; s < shift && !stop; s++) {
+        if (roadBlocked(cx + lx, cz + lz)) { stop = true; break; }
+        cx += lx;
+        cz += lz;
+        path.push({ x: cx, z: cz });
+      }
+    }
+    if (path.length >= 3) {
+      for (const t of path) setCell(t.x, t.z, 'road', true);
     }
   }
 

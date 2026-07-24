@@ -11,10 +11,10 @@ import {
   addBuilding,
   addSurvivor,
 } from './sim/state.js';
-import { levelMultiplier } from './sim/economy.js';
+import { levelMultiplier, effectiveCaps } from './sim/economy.js';
 import { createGrid, occupy, occupyTrap, getCell } from './world/grid.js';
 import { generateMap } from './world/mapgen.js';
-import { getDef } from './buildings/definitions.js';
+import { BUILDING_DEFS, getDef } from './buildings/definitions.js';
 
 export const SAVE_KEY = 'cbs-save';
 export const SAVE_VERSION = 4;
@@ -123,10 +123,9 @@ export function restoreSave(data) {
   if (data.resources && typeof data.resources === 'object') {
     for (const key of RESOURCE_KEYS) {
       if (typeof data.resources[key] === 'number') {
-        state.resources[key] = Math.min(
-          state.caps[key] ?? Infinity,
-          Math.max(0, data.resources[key])
-        );
+        // Lower clamp only: the upper one waits for the buildings below
+        // (their capBonus raises the ceiling — see the effectiveCaps pass).
+        state.resources[key] = Math.max(0, data.resources[key]);
       }
     }
   }
@@ -198,6 +197,17 @@ export function restoreSave(data) {
   state.nextBuildingId = Math.max(state.nextBuildingId, maxBuildingId + 1);
   if (!state.buildings.some((b) => b.defId === 'hq')) {
     throw new Error('Save without a Refuge');
+  }
+
+  // Upper clamp on the restored resources, now that the buildings are back:
+  // the effective caps (base + storage bonuses) are the ceiling the HUD
+  // shows, so a stock saved above the base cap survives the reload.
+  const effCaps = effectiveCaps(state, BUILDING_DEFS);
+  for (const key of RESOURCE_KEYS) {
+    state.resources[key] = Math.min(
+      effCaps[key] ?? Infinity,
+      state.resources[key] ?? 0
+    );
   }
 
   // Survivors keep their saved ids and reconnect to their workplace via
