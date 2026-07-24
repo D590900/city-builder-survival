@@ -259,6 +259,41 @@ describe('mapgen wildlife herds', () => {
   });
 });
 
+describe('mapgen roads', () => {
+  const roadTiles = (grid) => {
+    const tiles = [];
+    for (let z = 0; z < grid.size; z++) {
+      for (let x = 0; x < grid.size; x++) {
+        if (grid.cells[z][x].type === 'road') tiles.push({ x, z });
+      }
+    }
+    return tiles;
+  };
+
+  it('draws roads as 4-connected paths (no corner-only or isolated tiles)', () => {
+    for (const seed of [1, 2, 3, 42, 99, 123456]) {
+      const grid = generateMap(createGrid(), seed);
+      const isRoad = (x, z) =>
+        x >= 0 && z >= 0 && x < grid.size && z < grid.size &&
+        grid.cells[z][x].type === 'road';
+      for (const { x, z } of roadTiles(grid)) {
+        const neighbours =
+          (isRoad(x + 1, z) ? 1 : 0) +
+          (isRoad(x - 1, z) ? 1 : 0) +
+          (isRoad(x, z + 1) ? 1 : 0) +
+          (isRoad(x, z - 1) ? 1 : 0);
+        expect(neighbours).toBeGreaterThanOrEqual(1);
+      }
+    }
+  });
+
+  it('places at least one road on every seed', () => {
+    for (const seed of [1, 2, 3, 42, 99, 123456]) {
+      expect(roadTiles(generateMap(createGrid(), seed)).length).toBeGreaterThan(0);
+    }
+  });
+});
+
 describe('terrain', () => {
   // Simple CPU-only prop template: one box mesh in a group (no WebGL needed).
   const fakeProp = (height = 1) => {

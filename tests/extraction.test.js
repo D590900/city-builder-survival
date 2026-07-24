@@ -63,6 +63,7 @@ const DEFS = {
   sawmill: { name: 'Segheria', extracts: 'forest', extractRate: 10, jobs: 2, w: 1, h: 1 },
   forester: { name: 'Guardaboschi', plants: 'forest', jobs: 1, w: 1, h: 1 },
   house: { name: 'Casa', houses: 3, jobs: 0, w: 1, h: 1 },
+  warehouse: { name: 'Magazzino', capBonus: { wood: 100 }, jobs: 0, w: 1, h: 1 },
 };
 
 describe('TILE_YIELDS', () => {
@@ -185,6 +186,18 @@ describe('extractors', () => {
     expect(b.extracted).toBeCloseTo(5);
     expect(out.depleted).toHaveLength(0);
     expect(grid.cells[4][5].type).toBe('forest');
+  });
+
+  it('clamps at the effective cap when storage buildings raise it', () => {
+    const state = mkState();
+    state.resources.wood = 145; // base cap 150, +100 from the warehouse
+    const grid = mkGrid();
+    grid.cells[4][5].type = 'forest';
+    mkBuilding(state, 'sawmill', DEFS.sawmill, 4, 4, 2);
+    mkBuilding(state, 'warehouse', DEFS.warehouse, 7, 7);
+
+    tickExtraction(state, grid, DAY_LENGTH, DEFS); // all 10 wood fit under 250
+    expect(state.resources.wood).toBeCloseTo(155);
   });
 
   it('extract metal from ruins and ore with their own yields', () => {

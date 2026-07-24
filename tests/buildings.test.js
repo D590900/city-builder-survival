@@ -2,6 +2,9 @@ import { describe, it, expect } from 'vitest';
 import * as THREE from 'three';
 import { createBuildingVisuals, scaleForFootprint } from '../src/buildings/visuals.js';
 import { createPlacement, proximityEfficiencyAt, wallLineTiles } from '../src/buildings/placement.js';
+import { createGameState, addBuilding } from '../src/sim/state.js';
+import { createGrid, occupy } from '../src/world/grid.js';
+import { getDef } from '../src/buildings/definitions.js';
 
 // Smoke test: modules must import cleanly in node (no WebGL/DOM side
 // effects) and expose the documented factories. Instantiation is covered
@@ -149,6 +152,46 @@ function sizeOf(obj) {
   box.getSize(size);
   return size;
 }
+
+describe('demolishBuilding refund', () => {
+  function mkPlacement(state, grid) {
+    return createPlacement({
+      scene: new THREE.Scene(),
+      grid,
+      state,
+      input: { on() {}, ground: null },
+      visuals: { add() {}, remove() {} },
+      assets: {},
+    });
+  }
+
+  it('refunds half the cost, clamped at the base cap without storage', () => {
+    const state = createGameState();
+    const grid = createGrid();
+    const shackDef = getDef('shack'); // cost { wood: 15 } → refund 7
+    const shack = addBuilding(state, 'shack', shackDef, 4, 4);
+    occupy(grid, 4, 4, shackDef.w, shackDef.h, shack.id);
+
+    state.resources.wood = state.caps.wood - 2; // 148 of 150
+    mkPlacement(state, grid).demolishBuilding(shack);
+    expect(state.resources.wood).toBe(150); // only +2 fits
+  });
+
+  it('clamps at the effective cap when storage buildings raise it', () => {
+    const state = createGameState();
+    const grid = createGrid();
+    const whDef = getDef('warehouse'); // +100 wood capacity
+    const wh = addBuilding(state, 'warehouse', whDef, 0, 0);
+    occupy(grid, 0, 0, whDef.w, whDef.h, wh.id);
+    const shackDef = getDef('shack');
+    const shack = addBuilding(state, 'shack', shackDef, 20, 20);
+    occupy(grid, 20, 20, shackDef.w, shackDef.h, shack.id);
+
+    state.resources.wood = state.caps.wood - 2; // 148 of an effective 250
+    mkPlacement(state, grid).demolishBuilding(shack);
+    expect(state.resources.wood).toBe(155); // the full refund fits
+  });
+});
 
 describe('scaleForFootprint', () => {
   it('scales to 1.6 units per footprint row on a 1x1', () => {

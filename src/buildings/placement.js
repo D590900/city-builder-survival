@@ -24,10 +24,10 @@ import {
   findBuilding,
   pushEvent,
 } from '../sim/state.js';
-import { canAfford, payCost } from '../sim/economy.js';
+import { canAfford, payCost, effectiveCaps } from '../sim/economy.js';
 import { isUnlocked, TECHS } from '../sim/research.js';
 import { countNodesInRange } from '../sim/extraction.js';
-import { getDef } from './definitions.js';
+import { BUILDING_DEFS, getDef } from './definitions.js';
 import { getModel } from '../assets/loader.js';
 import { scaleForFootprint } from './visuals.js';
 
@@ -498,15 +498,17 @@ export function createPlacement({ scene, grid, state, input, visuals, assets, ov
   }
 
   // Demolishes a placed building: refunds half of each build-cost resource
-  // (floored, clamped to that resource's cap), frees the footprint, removes
-  // the model and logs the event. No-op on null/unknown buildings.
+  // (floored, clamped to that resource's effective cap — base plus storage
+  // bonuses, the same ceiling shown by the HUD), frees the footprint,
+  // removes the model and logs the event. No-op on null/unknown buildings.
   function demolishBuilding(building) {
     if (!building) return;
     const d = getDef(building.defId);
+    const caps = effectiveCaps(state, BUILDING_DEFS);
     for (const [resource, amount] of Object.entries(d?.cost ?? {})) {
       const refund = Math.floor(amount * DEMOLISH_REFUND);
       if (refund <= 0) continue;
-      const cap = state.caps?.[resource] ?? Infinity;
+      const cap = caps[resource] ?? Infinity;
       state.resources[resource] = Math.min(
         cap,
         (state.resources[resource] ?? 0) + refund

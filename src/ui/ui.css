@@ -372,7 +372,8 @@
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  min-width: 74px;
+  width: 104px; /* larghezza costante per tutte le card */
+  box-sizing: border-box;
   padding: 8px 10px;
   background: #171a21;
   border: 1px solid #333845;
@@ -392,9 +393,19 @@
 }
 
 .build-btn.disabled {
+  cursor: not-allowed;
+}
+
+/* Opacità e grayscale vanno sui figli di contenuto, non sul bottone:
+   l'opacity sul bottone renderebbe semi-trasparente anche il tooltip;
+   un filter ne farebbe il containing block del tooltip position:fixed,
+   spostandolo fuori posizione. */
+.build-btn.disabled .build-btn-icon,
+.build-btn.disabled .build-btn-name,
+.build-btn.disabled .build-btn-cost,
+.build-btn.disabled .build-btn-lock {
   opacity: 0.45;
   filter: grayscale(0.8);
-  cursor: not-allowed;
 }
 
 .build-btn-icon {
@@ -404,7 +415,9 @@
 
 .build-btn-name {
   font-size: 11px;
-  white-space: nowrap;
+  /* i nomi lunghi vanno a capo invece di strabordare dalla card fissa */
+  white-space: normal;
+  text-align: center;
 }
 
 .build-btn-cost {
